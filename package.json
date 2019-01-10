@@ -12,6 +12,7 @@
   "author": "jhonny111s",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.18.3",
     "express": "^4.16.4"
   }
 }
