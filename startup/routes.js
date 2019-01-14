@@ -5,6 +5,7 @@ const express = require('express');
 const books = require('../routes/books');
 const authors = require('../routes/authors');
 const purchases = require('../routes/purchases');
+const users = require('../routes/users');
 
 module.exports = function(app) {
   // Express usa los siguientes middleware que estan basados en body parser
@@ -18,4 +19,5 @@ module.exports = function(app) {
   app.use('/api/books', books);
   app.use('/api/authors', authors);
   app.use('/api/purchases', purchases);
+  app.use('/api/users', users);
 }

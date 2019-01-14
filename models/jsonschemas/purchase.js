@@ -3,7 +3,6 @@
 const { bookSchema } = require('./book');
 
 const purchaseSchema = {
-  "$async": true,
   "title": "purchase",
   "description": "purchase state",
   "type": "object",

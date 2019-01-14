@@ -66,6 +66,8 @@ global.purchase = [
 
 ];
 
+global.user = [];
+
 require('./startup/routes')(app);
 
 const port = process.env.PORT || 3000;

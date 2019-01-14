@@ -1,7 +1,6 @@
 "use strict";
 
 const authorSchema = {
-  "$async": true,
   "title": "author",
   "description": "A author schema",
   "type": "object",
