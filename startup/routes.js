@@ -3,6 +3,8 @@
 const express = require('express');
 // const bodyParser = require('body-parser');
 const books = require('../routes/books');
+const authors = require('../routes/authors');
+const purchases = require('../routes/purchases');
 
 module.exports = function(app) {
   // Express usa los siguientes middleware que estan basados en body parser
@@ -14,4 +16,6 @@ module.exports = function(app) {
 
   // Aqui creamos los recursos
   app.use('/api/books', books);
+  app.use('/api/authors', authors);
+  app.use('/api/purchases', purchases);
 }
