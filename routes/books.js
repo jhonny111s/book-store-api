@@ -2,6 +2,7 @@
 
 const express = require('express');
 const router = express.Router();
+const validation = require('../models/jsonschemas/book');
 
 // Aqui agregamos los metodos
 // https://www.rfc-archive.org/getrfc?rfc=2068
@@ -20,11 +21,14 @@ router.get('/:id', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-  if (req.body && (Object.keys(req.body).length != 0)) {
+  validation.validateSchema(req.body, validation.book)
+  .then(() => {
     book = book.concat(req.body);
-    return res.status(201).location(`api/books/${req.body.code}`).send();
-  }
-  res.status(404).send('Empty data');
+    res.status(201).location(`api/books/${req.body.code}`).send();
+  })
+  .catch((error) => {
+    res.status(400).send(error);
+  });
 });
 
 router.delete('/:id', (req, res) => {
