@@ -1,19 +1,15 @@
 "use strict";
 
-const Ajv = require('ajv');
-const ajv = new Ajv({$data: true, allErrors: true, async: true});
+const { bookSchema } = require('./book');
 
-
-const { book } = require('./book');
-
-const purchase = {
+const purchaseSchema = {
   "$async": true,
   "title": "purchase",
   "description": "purchase state",
   "type": "object",
 
   "definitions": {
-    "book": book,
+    "book": bookSchema,
     "item": {
         "title": "item",
         "description": "item purchase",
@@ -66,25 +62,4 @@ const purchase = {
   "required": ["id", "items"]
 };
 
-
-function validateSchema( data, schema) {
-    const validate = ajv.compile(schema);
-    return new Promise(function(resolve, reject) {
-        validate(data)
-            .then((result) => {
-                resolve(result);   
-            })
-            .catch((err) => {
-                if (err instanceof Ajv.ValidationError)
-                    reject(err)
-                else {
-                    reject(err)
-                }
-            });
-    });
-}
-
-module.exports = {
-    validateSchema,
-    purchase
-}
+exports.purchaseSchema = purchaseSchema;

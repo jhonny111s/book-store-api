@@ -1,10 +1,6 @@
 "use strict";
 
-const Ajv = require('ajv');
-const ajv = new Ajv({$data: true, allErrors: true, async: true});
-
-
-const author = {
+const authorSchema = {
   "$async": true,
   "title": "author",
   "description": "A author schema",
@@ -32,28 +28,4 @@ const author = {
   "required": ["id", "fullName", "birth", "country"]
 };
 
-
-function validateSchema( data, schema) {
-    const validate = ajv.compile(schema);
-    return new Promise(function(resolve, reject) {
-        validate(data)
-            .then((result) => {
-                // Simula un tiempo de espera de 3 segundos
-                setTimeout(function(){resolve(result); }, 3000);
-                
-            })
-            .catch((err) => {
-                if (err instanceof Ajv.ValidationError)
-                    reject(err)
-                else {
-                    reject(err)
-                }
-            });
-    });
-}
-
-
-module.exports = {
-    validateSchema,
-    author
-}
+exports.authorSchema = authorSchema;

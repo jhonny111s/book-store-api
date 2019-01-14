@@ -1,22 +1,6 @@
 "use strict";
 
-/* 
-    En este archivo debería solo existir el schema que representa la estructura
-    y restricciones de "book", sin embargo tambien se esta agregando la validación en
-    este archivo mientras aprendemos a hacer un middleware.
-*/
-const Ajv = require('ajv');
-const ajv = new Ajv({$data: true, allErrors: true, async: true});
-
-// https://json-schema.org/understanding-json-schema/index.html
-/*
-    Si bien jsonSchema puede no ser muy facil de entender en un principio como lo puede ser
-    JOI, este nos brinda gran maniobrabilidad al ordenar la estructura y al definir toda clase
-    de reglas que consideremos: tales como que un titulo debe tener mas de 2 caracteres o cosas
-    más complejas como si se envia precio debe se obligatorio enviar stock.
-
-*/
-const book = {
+const bookSchema = {
   "title": "book",
   "description": "A book schema",
   "type": "object",
@@ -64,29 +48,4 @@ const book = {
   "required": ["title","stock", "code"]
 };
 
-
-function validateSchema( data, schema) {
-    schema["$async"] = true;
-    const validate = ajv.compile(schema);
-    return new Promise(function(resolve, reject) {
-        validate(data)
-            .then((result) => {
-                // Simula un tiempo de espera de 3 segundos
-                setTimeout(function(){resolve(result); }, 3000);
-                
-            })
-            .catch((err) => {
-                if (err instanceof Ajv.ValidationError)
-                    reject(err)
-                else {
-                    reject(err)
-                }
-            });
-    });
-}
-
-
-module.exports = {
-    validateSchema,
-    book
-}
+exports.bookSchema = bookSchema;
