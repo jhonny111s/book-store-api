@@ -2,7 +2,8 @@
 
 const express = require('express');
 const router = express.Router();
-const validation = require('../models/jsonschemas/author');
+const validate = require('../middleware/validation');
+const { authorSchema } = require('../models/jsonschemas/author');
 
 
 router.get('/', (req, res) => {
@@ -18,15 +19,9 @@ router.get('/:id', (req, res) => {
   res.status(404).send({});
 });
 
-router.post('/', (req, res) => {
-  validation.validateSchema(req.body, validation.author)
-  .then(() => {
-    author = author.concat(req.body);
-    res.status(201).location(`api/authors/${req.body.id}`).send();
-  })
-  .catch((error) => {
-    res.status(400).send(error);
-  });
+router.post('/', validate(authorSchema), (req, res) => {
+  author = author.concat(req.body);
+  res.status(201).location(`api/authors/${req.body.id}`).send();
 });
 
 router.delete('/:id', (req, res) => {

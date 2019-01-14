@@ -2,8 +2,8 @@
 
 const express = require('express');
 const router = express.Router();
-const validation = require('../models/jsonschemas/purchase');
-
+const validate = require('../middleware/validation');
+const { purchaseSchema } = require('../models/jsonschemas/purchase');
 
 router.get('/:id', (req, res) => {
   const item = purchase.filter(purchase => purchase.id == req.params.id );
@@ -13,15 +13,9 @@ router.get('/:id', (req, res) => {
   res.status(404).send({});
 });
 
-router.post('/', (req, res) => {
-  validation.validateSchema(req.body, validation.purchase)
-  .then(() => {
-    purchase = purchase.concat(req.body);
-    res.status(201).location(`api/purchases/${req.body.id}`).send();
-  })
-  .catch((error) => {
-    res.status(400).send(error);
-  });
+router.post('/', validate(purchaseSchema), (req, res) => {
+  purchase = purchase.concat(req.body);
+  res.status(201).location(`api/purchases/${req.body.id}`).send();
 });
 
 router.delete('/:id', (req, res) => {

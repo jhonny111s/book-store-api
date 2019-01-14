@@ -2,7 +2,8 @@
 
 const express = require('express');
 const router = express.Router();
-const validation = require('../models/jsonschemas/book');
+const validate = require('../middleware/validation');
+const { bookSchema } = require('../models/jsonschemas/book');
 
 // Aqui agregamos los metodos
 // https://www.rfc-archive.org/getrfc?rfc=2068
@@ -20,15 +21,9 @@ router.get('/:id', (req, res) => {
   res.status(404).send({});
 });
 
-router.post('/', (req, res) => {
-  validation.validateSchema(req.body, validation.book)
-  .then(() => {
-    book = book.concat(req.body);
-    res.status(201).location(`api/books/${req.body.code}`).send();
-  })
-  .catch((error) => {
-    res.status(400).send(error);
-  });
+router.post('/', validate(bookSchema), (req, res) => {
+  book = book.concat(req.body);
+  res.status(201).location(`api/books/${req.body.code}`).send();
 });
 
 router.delete('/:id', (req, res) => {
