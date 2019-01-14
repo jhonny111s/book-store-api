@@ -17,7 +17,6 @@ const ajv = new Ajv({$data: true, allErrors: true, async: true});
 
 */
 const book = {
-  "$async": true,
   "title": "book",
   "description": "A book schema",
   "type": "object",
@@ -67,6 +66,7 @@ const book = {
 
 
 function validateSchema( data, schema) {
+    schema["$async"] = true;
     const validate = ajv.compile(schema);
     return new Promise(function(resolve, reject) {
         validate(data)
