@@ -16,3 +16,10 @@
 - Es esencial entender que todas las librerias que manejemos no deben ser [bloqueantes](https://nodejs.org/en/docs/guides/blocking-vs-non-blocking/), esto quiere decir que debemos tratar de usar funciones asincronas.
 - Es importante asegurarnos de hacer validaciones tando en el frontend antes de enviar la información a un API, en el backend cuando recibimos esa información y en el momento de tratarla y enviarla a base de datos u otro lugar, esto puede sonar redundante pero todo debe tratarse como si fueran piezas independietes.
 - Para hacer pruebas con nuestra API podemos usar [postman](https://www.getpostman.com/), el cual es un ambiente bastante bueno y flexible o podemos hacerlo desde linea de comandos con [curl](https://gist.github.com/subfuzion/08c5d85437d5d4f00e58), como tip postman nos puede dar el código curl.
+
+## Routes
+
+- Por el momento se agregaron dos nuevas rutas authors y purchases, con los cuales ya tenemos un template para crear una ruta de lo que se nos ocurra con su respectiva validación.
+- En el jsonschema de purchase podemos comprobar como anidamos objetos para hacer más poderosa la validación usando definitions o utilizando directamente un archivo externo.
+- Creamos nuestro primer middleware para hacer las validaciones, por el momento en cada POST de las rutas que tenemos definidas.
+- Ahora los jsonSchemas solo exportan su definición.
