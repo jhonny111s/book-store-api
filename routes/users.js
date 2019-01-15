@@ -7,6 +7,7 @@ const { userSchema } = require('../models/jsonschemas/user');
 const bcrypt = require('bcrypt');
 const uuid= require('uuid');
 const jwt = require('jsonwebtoken');
+const _ = require('lodash');
 
 // Permite crear un usuario e inmediatamente generar el token de autenticación el la cabecera
 router.post('/', validate(userSchema), async(req, res) => {
@@ -57,7 +58,7 @@ router.post('/login', validate(userSchema), async(req, res) => {
 
     generateAuthToken(item[0].id)
       .then((token) => {
-        res.header('x-auth-token', token).send();
+        res.header('x-auth-token', token).send(_.pick(item[0], ["id", "email"]));
       })
       .catch((err) => {
         res.status(500).send(err);
@@ -81,7 +82,7 @@ router.post('/me', async(req, res) => {
     if (item.length === 0) {
       return res.status(400).send('user error');
     }
-    res.send(item[0]);
+    res.send(_.pick(item[0], ["id", "email"]));
   })
   .catch((err) => {
     res.status(400).send('Invalid token.' + err.name);

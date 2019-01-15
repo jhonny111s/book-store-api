@@ -27,7 +27,8 @@
 ## auth
 
 - Se crea la ruta users donde podemos crear los usuarios y posteriormente autenticarnos.
-- Se usa el paquete bcrypt para encriptar la contraseña, ya que es una buena practica de seguridad.
+- Se usa el paquete [bcrypt](https://www.npmjs.com/package/bcrypt) para encriptar la contraseña, ya que es una buena practica de seguridad.
 - Se usa el paquete uuid para generar un identificador unico para el usuario.
 - Una vez nos autenticamos se genera un token con [JWT](https://jwt.io/), el cual contendra el identificador y los permisos de usuario todo codificado y asi el cliente podrá usar este token para hace peticiones.
 - En users creamos tres rutas POST: una para crear un usuario, otra para loguearse y otra para obtener la información del usuario a partir de su token.
+- Vamos a comenzar a usar el paquete [lodash](https://lodash.com/) el cual nos provee multiples utilidades, una de ellas que usamos el pick la cual se le pasa un objeto y un array de cadenas, las cuales nos van a filtrar el objeto que queremos retornar.
