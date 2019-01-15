@@ -30,3 +30,4 @@
 - Se usa el paquete bcrypt para encriptar la contraseña, ya que es una buena practica de seguridad.
 - Se usa el paquete uuid para generar un identificador unico para el usuario.
 - Una vez nos autenticamos se genera un token con [JWT](https://jwt.io/), el cual contendra el identificador y los permisos de usuario todo codificado y asi el cliente podrá usar este token para hace peticiones.
+- En users creamos tres rutas POST: una para crear un usuario, otra para loguearse y otra para obtener la información del usuario a partir de su token.
