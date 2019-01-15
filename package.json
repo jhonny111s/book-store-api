@@ -13,7 +13,9 @@
   "license": "ISC",
   "dependencies": {
     "ajv": "^6.7.0",
+    "bcrypt": "^3.0.3",
     "body-parser": "^1.18.3",
-    "express": "^4.16.4"
+    "express": "^4.16.4",
+    "uuid": "^3.3.2"
   }
 }

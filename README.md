@@ -23,3 +23,10 @@
 - En el jsonschema de purchase podemos comprobar como anidamos objetos para hacer más poderosa la validación usando definitions o utilizando directamente un archivo externo.
 - Creamos nuestro primer middleware para hacer las validaciones, por el momento en cada POST de las rutas que tenemos definidas.
 - Ahora los jsonSchemas solo exportan su definición.
+
+## auth
+
+- Se crea la ruta users donde podemos crear los usuarios y posteriormente autenticarnos.
+- Se usa el paquete bcrypt para encriptar la contraseña, ya que es una buena practica de seguridad.
+- Se usa el paquete uuid para generar un identificador unico para el usuario.
+- Una vez nos autenticamos se genera un token con [JWT](https://jwt.io/), el cual contendra el identificador y los permisos de usuario todo codificado y asi el cliente podrá usar este token para hace peticiones.

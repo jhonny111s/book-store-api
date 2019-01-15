@@ -5,6 +5,11 @@ const userSchema = {
   "description": "A user schema",
   "type": "object",
   "properties": {
+    "id": {
+      "description": "identifier",
+      "type": "string",
+      "format": "uuid"
+    },
     "fullName": {
       "description": "The user full name",
       "type": "string",
