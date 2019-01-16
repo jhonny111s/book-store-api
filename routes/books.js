@@ -3,93 +3,74 @@
 const express = require('express');
 const router = express.Router();
 const validate = require('../middleware/validation');
-const { bookSchema } = require('../models/jsonschemas/book');
+const { bookSchema, Book } = require('../models/jsonschemas/book');
+var mongodb = require("mongodb")
 
 // Aqui agregamos los metodos
 // https://www.rfc-archive.org/getrfc?rfc=2068
 
 router.get('/', (req, res) => {
-  const books = book ;
-  res.send(books);
+  Book.find({}, function (err, docs) {
+    if (err) return res.status(400).send(err);
+    res.send(docs);
+  });
 });
 
 router.get('/:id', (req, res) => {
-  const item = book.filter(book => book.code == req.params.id );
-  if (item.length > 0) {
-    return res.send(item[0]);
+  if (!mongodb.ObjectID.isValid(req.params.id)) {
+    return res.status(400).send('Invalid id');
   }
-  res.status(404).send({});
+
+  Book.findById(req.params.id, function (err, doc) {
+    if (err) return res.status(400).send(err);
+    res.send(doc);
+  });
 });
 
 router.post('/', validate(bookSchema), (req, res) => {
-  book = book.concat(req.body);
-  res.status(201).location(`api/books/${req.body.code}`).send();
+  const book = new Book(req.body);
+  book.save(function (err, doc) {
+    if (err) return res.status(400).send(err);
+    res.status(201).location(`api/books/${doc.id}`).send(doc);
+  });
 });
 
 router.delete('/:id', (req, res) => {
-  const item = book.filter(book => book.code == req.params.id );
-  if (item.length > 0) {
-    book = book.filter(book => book.code !== req.params.id );
-    return res.send(item[0]);
+  if (!mongodb.ObjectID.isValid(req.params.id)) {
+    return res.status(400).send('Invalid id');
   }
-  res.status(404).send('Empty data');
+
+  Book.findByIdAndDelete(req.params.id, function (err, doc) {
+    if (err) return res.status(400).send(err);
+    res.send(doc);
+  });
 });
 
 // Actualiza solo los campos enviados, si no existe el recurso devuelve un error
 // https://www.rfc-archive.org/getrfc?rfc=5789
 // https://www.rfc-archive.org/getrfc?rfc=7396
 router.patch('/:id', (req, res) => {
-  const item = book.filter(book => book.code == req.params.id );
-  if (item.length > 0) {
-
-    // función sugerida en la documentación
-    function mergePatch(target, patch) {
-      if (typeof(patch) === 'object') {
-        if (typeof(target) !== 'object') {
-          return {};
-        }
-        Object.keys(patch).forEach( key => {
-          if (patch[key] === null) {
-            if (target[key]) {
-              delete target[key];
-            }
-          }
-          else {
-            target[key] = mergePatch(target[key], patch[key]);
-          }
-        });
-        return target;
-      }
-      return patch;
-    }
-
-    const diff = mergePatch({...item[0]}, req.body);
-    book = book.map(bo => {
-      if (bo.code == req.body.code) {
-        return bo = diff;
-      } 
-      return bo;
-    })
-    return res.send(diff);
+  if (!mongodb.ObjectID.isValid(req.params.id)) {
+    return res.status(400).send('Invalid id');
   }
-  res.status(404).send();
+
+  //TODO: validar como hacer los $unset
+  Book.findByIdAndUpdate(req.params.id, {$set: req.body } ,function (err, doc) {
+    if (err) return res.status(400).send(err);
+    res.send(doc);
+  });
 });
 
 // Actualiza todo el recurso, si no existe se crea
-router.put('/:id', (req, res) => {
-  const item = book.filter(book => book.code == req.params.id );
-  if (item.length > 0) {
-    book = book.map(bo => {
-      if (bo.code == req.body.code) {
-        return bo = req.body;
-      } 
-      return bo;
-    });
-
-    return res.location(`api/books/${req.params.id}`).send();
+router.put('/:id', validate(bookSchema), (req, res) => {
+  if (!mongodb.ObjectID.isValid(req.params.id)) {
+    return res.status(400).send('Invalid id');
   }
-  book = book.concat(req.body);
-  res.status(201).location(`api/books/${req.params.id}`).send();
+
+  Book.findByIdAndUpdate(req.params.id, req.body, {upsert:true} ,function (err, doc) {
+    if (err) return res.status(400).send(err);
+    res.send(doc);
+  });
 });
 
 module.exports = router; 

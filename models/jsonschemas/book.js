@@ -1,5 +1,7 @@
 "use strict";
+const mongoose = require('mongoose');
 
+// JsonSchema para validar lo que envia el cliente
 const bookSchema = {
   "title": "book",
   "description": "A book schema",
@@ -45,7 +47,49 @@ const bookSchema = {
          "minimum": 0,
          }
   },
-  "required": ["title","stock", "code"]
+  "required": ["title", "author", "description", "price", "code", "stock"]
 };
 
+
+const Book = mongoose.model('Books', new mongoose.Schema({
+    title: {
+        type: String,
+        required: true,
+        minLength: 2,
+        trim: true,
+        lowercase:true
+        },
+    author: {
+        type: [String],
+        required: true
+    },
+    description: {
+        type: String,
+        required: true,
+        maxLength: 144
+    },
+    price: {
+        type: Number,
+        required: true,
+        min: 0,
+        max: 1000000
+    },
+    category: {
+        type: String,
+        enum: ['Novel', 'Poetry', 'Documental']
+    },
+    code: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    stock: {
+        type: Number,
+        required: true,
+        minimum: 0,
+    }
+}));
+
 exports.bookSchema = bookSchema;
+exports.Book = Book;
+
