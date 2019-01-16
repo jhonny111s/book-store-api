@@ -37,3 +37,4 @@
 
 - Es hora de guardar nuestros datos en una base de datos y en este caso vamos a usar una base de datos nosql llamada [mongodb](https://docs.mongodb.com/manual/tutorial/getting-started/), para interactuar con la base de datos necesitamos de un driver o controlador y para esto vamos a usar un wrapper del driver para node conocido como [mongoose](https://mongoosejs.com/docs/index.html).
 - La instalación de mongo y como correrlo en su maquina local, se encuentra en la documentación del mismo y por el momento vamos a asumir su correcto funcionamiento.
+- Se implementaron los metodos para encontrar, guardar y actualizar que nos proporciona mongoose, estos los usamos en todas las rutas, ahora permitiendonos guardar en base de datos. si bien los datos aun no son muy consistentes este es un buen inicio, para refactorizar y mejorar nuestro código.
