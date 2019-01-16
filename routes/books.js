@@ -49,12 +49,14 @@ router.delete('/:id', (req, res) => {
 // Actualiza solo los campos enviados, si no existe el recurso devuelve un error
 // https://www.rfc-archive.org/getrfc?rfc=5789
 // https://www.rfc-archive.org/getrfc?rfc=7396
+// https://www.rfc-archive.org/getrfc?rfc=6902
 router.patch('/:id', (req, res) => {
   if (!mongodb.ObjectID.isValid(req.params.id)) {
     return res.status(400).send('Invalid id');
   }
 
-  //TODO: validar como hacer los $unset
+  // Para no complicarnos por el momento se va a hacer un set osea remplazar
+  // los valores que mandamos, sin embargo esta es una aproximación muy simple de un patch.
   Book.findByIdAndUpdate(req.params.id, {$set: req.body } ,function (err, doc) {
     if (err) return res.status(400).send(err);
     res.send(doc);
