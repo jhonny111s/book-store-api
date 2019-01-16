@@ -1,5 +1,7 @@
 "use strict";
 
+const mongoose = require('mongoose');
+
 const authorSchema = {
   "title": "author",
   "description": "A author schema",
@@ -14,17 +16,32 @@ const authorSchema = {
         "description": "birth's author",
         "type": "string",
     },
-    "id": {
-        "description": "author id",
-        "type": "string",
-        "pattern": "^([0-9]{4})", // example 0005
-    },
     "country": {
         "description": "author's country",
         "type": "string",
     },
   },
-  "required": ["id", "fullName", "birth", "country"]
+  "required": ["fullName", "birth", "country"]
 };
 
+const Author = mongoose.model('Authors', new mongoose.Schema({
+  fullName: {
+      type: String,
+      required: true,
+      minLength: 2,
+      trim: true,
+      lowercase:true
+      },
+  birth: {
+      type: String,
+      required: true
+  },
+  country: {
+      type: String,
+      required: true
+  }
+}));
+
 exports.authorSchema = authorSchema;
+exports.Author = Author;
+

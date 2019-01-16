@@ -1,15 +1,12 @@
 "use strict";
 
+const mongoose = require('mongoose');
+
 const userSchema = {
   "title": "user",
   "description": "A user schema",
   "type": "object",
   "properties": {
-    "id": {
-      "description": "identifier",
-      "type": "string",
-      "format": "uuid"
-    },
     "fullName": {
       "description": "The user full name",
       "type": "string",
@@ -25,8 +22,27 @@ const userSchema = {
         "type": "string"
     }
   },
-  "required": ["email", "password"],
+  "required": ["fullName", "email", "password"],
   "additionalProperties": false
 };
 
+const User = mongoose.model('Users', new mongoose.Schema({
+    fullName: {
+        type: String,
+        required: true,
+        minLength: 5,
+        trim: true,
+        lowercase:true
+        },
+    email: {
+        type: String,
+        required: true
+    },
+    password: {
+        type: String,
+        required: true
+    }
+  }));
+
 exports.userSchema = userSchema;
+exports.User = User;

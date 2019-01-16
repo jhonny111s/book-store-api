@@ -4,7 +4,7 @@ const express = require('express');
 const router = express.Router();
 const validate = require('../middleware/validation');
 const { bookSchema, Book } = require('../models/jsonschemas/book');
-var mongodb = require("mongodb")
+const mongodb = require("mongodb");
 
 // Aqui agregamos los metodos
 // https://www.rfc-archive.org/getrfc?rfc=2068

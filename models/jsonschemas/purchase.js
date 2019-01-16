@@ -1,5 +1,6 @@
 "use strict";
 
+const mongoose = require('mongoose');
 const { bookSchema } = require('./book');
 
 const purchaseSchema = {
@@ -52,13 +53,38 @@ const purchaseSchema = {
     "user": {
         "description": "user's purchase",
         "type": "string",
-    },
-    "id": {
-        "description": "id purchase",
-        "type": "string",
-    },
+    }
   },
-  "required": ["id", "items"]
+  "required": ["items"]
 };
 
+const Purchase = mongoose.model('Purchases', new mongoose.Schema({
+    items: {
+        type: Object,
+    },
+    total: {
+        type: Number,
+        required: true,
+        min: 0
+    },
+    size: {
+        type: Number,
+        required: true,
+        min: 0
+    },
+    count: {
+        type: Number,
+        required: true,
+        min: 0
+    },
+    state: {
+        type: String,
+        required: true
+    },
+    user: {
+        type: String,
+    }
+  }));
+
 exports.purchaseSchema = purchaseSchema;
+exports.Purchase = Purchase;

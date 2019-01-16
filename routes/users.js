@@ -3,7 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const validate = require('../middleware/validation');
-const { userSchema } = require('../models/jsonschemas/user');
+const { userSchema, User } = require('../models/jsonschemas/user');
 const bcrypt = require('bcrypt');
 const uuid= require('uuid');
 const jwt = require('jsonwebtoken');
@@ -16,16 +16,18 @@ router.post('/', validate(userSchema), async(req, res) => {
   bcrypt.genSalt(10).then((salt)=> {
     bcrypt.hash(req.body.password, salt).then((hash) => {
       req.body.password = hash;
-      req.body.id = uuid();
-      user = user.concat(req.body);
-
-      generateAuthToken(req.body.id)
-      .then((token) => {
-        res.header('x-auth-token', token).status(201).send();
-      })
-      .catch((err) => {
-        res.status(500).send(err);
-      }); 
+      
+      const user = new User(req.body);
+      user.save(function (err, doc) {
+        if (err) return res.status(400).send(err);
+        generateAuthToken(req.body.id)
+        .then((token) => {
+          res.header('x-auth-token', token).status(201).send();
+        })
+        .catch((err) => {
+          res.status(500).send(err);
+        }); 
+      });
     })
     .catch((err) => {
       res.status(500).send(err);
@@ -45,29 +47,29 @@ router.post('/', validate(userSchema), async(req, res) => {
   datos, vamos a enviar un token el cual podra ser guardado en las cookies del navegador o
   en el localstorage.
  */
-router.post('/login', validate(userSchema), async(req, res) => {
-  const item = user.filter(user => user.email == req.body.email );
-  if (item.length === 0) {
-    return res.status(400).send('Invalid email or password');
-  }
+router.post('/login', async(req, res) => {
+  User.findOne({email: req.body.email}, function (err, doc) {
+    if (err) return res.status(400).send(err);
+    if (!doc) return res.status(400).send('Invalid email or password');
 
-  bcrypt.compare(req.body.password, item[0].password).then((valid)=>{
-    if (!valid) {
-      return res.status(400).send('Invalid email or password');
-    }
-
-    generateAuthToken(item[0].id)
-      .then((token) => {
-        res.header('x-auth-token', token).send(_.pick(item[0], ["id", "email"]));
-      })
-      .catch((err) => {
-        res.status(500).send(err);
-      }); 
-  })
-  .catch((err) => {
-    res.status(500).send(err);
-  });
+    bcrypt.compare(req.body.password, doc.password)
+    .then((valid)=>{
+      if (!valid) {
+        return res.status(400).send('Invalid email or password');
+      }
   
+      generateAuthToken(doc.id)
+        .then((token) => {
+          res.header('x-auth-token', token).send(_.pick(doc, ["id", "email"]));
+        })
+        .catch((err) => {
+          res.status(500).send(err);
+        }); 
+    })
+    .catch((err) => {
+      res.status(500).send(err);
+    });
+  });
 });
 
 // "Me" nos sirve para una vez autenticados obtener nuestros datos, es muy comun
@@ -78,11 +80,11 @@ router.post('/me', async(req, res) => {
 
   decodeAuthToken(token)
   .then((decoded)=> {
-    const item = user.filter(user => user.id == decoded._id );
-    if (item.length === 0) {
-      return res.status(400).send('user error');
-    }
-    res.send(_.pick(item[0], ["id", "email"]));
+    User.findOne({_id: decoded._id}, function (err, doc) {
+      if (err) return res.status(400).send(err);
+      if (!doc) return res.status(400).send('user error');
+      res.send(_.pick(doc, ["id", "email"]));
+    });
   })
   .catch((err) => {
     res.status(400).send('Invalid token.' + err.name);

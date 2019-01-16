@@ -3,86 +3,67 @@
 const express = require('express');
 const router = express.Router();
 const validate = require('../middleware/validation');
-const { authorSchema } = require('../models/jsonschemas/author');
+const { authorSchema, Author } = require('../models/jsonschemas/author');
+const mongodb = require("mongodb");
 
 
 router.get('/', (req, res) => {
-  const authors = author ;
-  res.send(authors);
+  Author.find({}, function (err, authors) {
+    if (err) return res.status(400).send(err);
+    res.send(authors);
+  });
 });
 
 router.get('/:id', (req, res) => {
-  const item = author.filter(author => author.id == req.params.id );
-  if (item.length > 0) {
-    return res.send(item[0]);
+  if (!mongodb.ObjectID.isValid(req.params.id)) {
+    return res.status(400).send('Invalid id');
   }
-  res.status(404).send({});
+
+  Author.findById(req.params.id, function (err, author) {
+    if (err) return res.status(400).send(err);
+    res.send(author);
+  });
 });
 
 router.post('/', validate(authorSchema), (req, res) => {
-  author = author.concat(req.body);
-  res.status(201).location(`api/authors/${req.body.id}`).send();
+  const author = new Author(req.body);
+  author.save(function (err, doc) {
+    if (err) return res.status(400).send(err);
+    res.status(201).location(`api/authors/${doc.id}`).send(doc);
+  });
 });
 
 router.delete('/:id', (req, res) => {
-  const item = author.filter(author => author.id == req.params.id );
-  if (item.length > 0) {
-    author = author.filter(author => author.id !== req.params.id );
-    return res.send(item[0]);
+  if (!mongodb.ObjectID.isValid(req.params.id)) {
+    return res.status(400).send('Invalid id');
   }
-  res.status(404).send('Empty data');
+
+  Author.findByIdAndDelete(req.params.id, function (err, doc) {
+    if (err) return res.status(400).send(err);
+    res.send(doc);
+  });
 });
 
 router.patch('/:id', (req, res) => {
-  const item = author.filter(author => author.id == req.params.id );
-  if (item.length > 0) {
-
-    function mergePatch(target, patch) {
-      if (typeof(patch) === 'object') {
-        if (typeof(target) !== 'object') {
-          return {};
-        }
-        Object.keys(patch).forEach( key => {
-          if (patch[key] === null) {
-            if (target[key]) {
-              delete target[key];
-            }
-          }
-          else {
-            target[key] = mergePatch(target[key], patch[key]);
-          }
-        });
-        return target;
-      }
-      return patch;
-    }
-
-    const diff = mergePatch({...item[0]}, req.body);
-    author = author.map(bo => {
-      if (bo.id == req.params.id) {
-        return bo = diff;
-      } 
-      return bo;
-    })
-    return res.send(diff);
+  if (!mongodb.ObjectID.isValid(req.params.id)) {
+    return res.status(400).send('Invalid id');
   }
-  res.status(404).send();
+
+  Author.findByIdAndUpdate(req.params.id, {$set: req.body } ,function (err, doc) {
+    if (err) return res.status(400).send(err);
+    res.send(doc);
+  });
 });
 
 router.put('/:id', (req, res) => {
-  const item = author.filter(author => author.id == req.params.id );
-  if (item.length > 0) {
-    author = author.map(bo => {
-      if (bo.id == req.params.id) {
-        return bo = req.body;
-      } 
-      return bo;
-    });
-
-    return res.location(`api/authors/${req.params.id}`).send();
+  if (!mongodb.ObjectID.isValid(req.params.id)) {
+    return res.status(400).send('Invalid id');
   }
-  author = author.concat(req.body);
-  res.status(201).location(`api/authors/${req.params.id}`).send();
+
+  Author.findByIdAndUpdate(req.params.id, req.body, {upsert:true} ,function (err, doc) {
+    if (err) return res.status(400).send(err);
+    res.send(doc);
+  });
 });
 
 module.exports = router; 
