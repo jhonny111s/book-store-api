@@ -1,5 +1,6 @@
 "use strict";
 const mongoose = require('mongoose');
+require('./author');
 
 // JsonSchema para validar lo que envia el cliente
 const bookSchema = {
@@ -12,7 +13,7 @@ const bookSchema = {
       "type": "string",
       "minLength": 2,
     },
-    "author": {
+    "authors": {
         "description": "reference to authors",
         "type": "array",
         "minItems": 1,
@@ -47,7 +48,8 @@ const bookSchema = {
          "minimum": 0,
          }
   },
-  "required": ["title", "author", "description", "price", "code", "stock"]
+  "required": ["title", "authors", "description", "price", "code", "stock"],
+  "additionalProperties": false
 };
 
 
@@ -59,8 +61,8 @@ const Book = mongoose.model('Books', new mongoose.Schema({
         trim: true,
         lowercase:true
         },
-    author: {
-        type: [String],
+    authors: {
+        type: [mongoose.Schema.Types.ObjectId],
         required: true
     },
     description: {
