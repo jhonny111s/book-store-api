@@ -3,6 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const validate = require('../middleware/validation');
+const auth = require('../middleware/auth');
 const { bookSchema, Book } = require('../models/jsonschemas/book');
 const { Author } = require('../models/jsonschemas/author');
 const mongodb = require("mongodb");
@@ -10,7 +11,7 @@ const mongodb = require("mongodb");
 // Aqui agregamos los metodos
 // https://www.rfc-archive.org/getrfc?rfc=2068
 
-router.get('/', (req, res) => {
+router.get('/', auth, (req, res) => {
   // Se utiliza la agregación para hacer una consulta propia de mongo
   // con el lookup estamos reemplzando el id del author en el libro por su contenido.
   Book.aggregate([
@@ -24,7 +25,7 @@ router.get('/', (req, res) => {
   });
 });
 
-router.get('/:id', (req, res) => {
+router.get('/:id', auth, (req, res) => {
   if (!mongodb.ObjectID.isValid(req.params.id)) {
     return res.status(400).send('Bad Request - Invalid Id');
   }
@@ -42,7 +43,7 @@ router.get('/:id', (req, res) => {
   });
 });
 
-router.post('/', validate(bookSchema), (req, res) => {
+router.post('/', [auth, validate(bookSchema)], (req, res) => {
   const book = new Book(req.body);
   book.save(function (err, doc) {
     if (err) return res.status(500).send(err);
@@ -50,7 +51,7 @@ router.post('/', validate(bookSchema), (req, res) => {
   });
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', auth, (req, res) => {
   if (!mongodb.ObjectID.isValid(req.params.id)) {
     return res.status(400).send('Bad Request - Invalid Id');
   }
@@ -67,7 +68,7 @@ router.delete('/:id', (req, res) => {
 // https://www.rfc-archive.org/getrfc?rfc=5789
 // https://www.rfc-archive.org/getrfc?rfc=7396
 // https://www.rfc-archive.org/getrfc?rfc=6902
-router.patch('/:id', (req, res) => {
+router.patch('/:id', auth, (req, res) => {
   if (!mongodb.ObjectID.isValid(req.params.id)) {
     return res.status(400).send('Bad Request - Invalid Id');
   }
@@ -102,7 +103,7 @@ router.patch('/:id', (req, res) => {
 });
 
 // Actualiza todo el recurso, si no existe se crea
-router.put('/:id', validate(bookSchema), (req, res) => {
+router.put('/:id', [auth, validate(bookSchema)], (req, res) => {
   if (!mongodb.ObjectID.isValid(req.params.id)) {
     return res.status(400).send('Bad Request - Invalid Id');
   }
