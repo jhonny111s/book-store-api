@@ -42,4 +42,5 @@
 ## refactorization
 
 - Se mejoraron los códigos de respuesta http, para que esten acorde a los estandares de la comunidad.
-- se manejan referencias directas (ObjectId) en el caso de los autores de un libro, por esto se hace una agregación para poder obtener la información al consultar un libro.
+- se manejan referencias directas (ObjectId) en el caso de los autores de un libro o el usuario que creo una compra, por esto se hace una agregación para poder obtener la información al consultar un libro.
+- En la actualización cuando se hace un patch se agrego la funcionalidad de $set y $unset de mongo las cuales permiten modificar y remover items respectivamente de un documento.
