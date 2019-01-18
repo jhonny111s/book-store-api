@@ -8,29 +8,30 @@ const mongodb = require("mongodb");
 
 router.get('/:id', (req, res) => {
   if (!mongodb.ObjectID.isValid(req.params.id)) {
-    return res.status(400).send('Invalid id');
+    return res.status(400).send('Bad Request - Invalid Id');
   }
 
   Purchase.findById(req.params.id, function (err, docs) {
-    if (err) return res.status(400).send(err);
-    res.send(docs);
+    if (err) return res.status(500).send(err);
+    if (!docs) return res.status(404).send('Not Found');
+    res.status(200).send(docs);
   });
 });
 
 router.post('/', validate(purchaseSchema), (req, res) => {
 
-  function purchaseFormat(items) {
+  function purchaseFormat(body) {
     let cart = {
       items: [],
       total: 0,
       size: 0,
       count: 0,
       state: 'INITIAL',
-      user: null
+      user: body.user? body.user: null
     };
 
-    if (Array.isArray(items)) {
-      for (let item of items) {
+    if (Array.isArray(body.items)) {
+      for (let item of body.items) {
         cart.items = cart.items.concat(item);
         cart.total += item.book.price * item.count;
         cart.size += 1;
@@ -40,21 +41,22 @@ router.post('/', validate(purchaseSchema), (req, res) => {
     return cart;
   }
 
-  const purchase = new Purchase(purchaseFormat(req.body.items));
+  const purchase = new Purchase(purchaseFormat(req.body));
   purchase.save(function (err, doc) {
-    if (err) return res.status(400).send(err);
+    if (err) return res.status(500).send(err);
     res.status(201).location(`api/purchases/${doc.id}`).send(doc);
   });
 });
 
 router.delete('/:id', (req, res) => {
   if (!mongodb.ObjectID.isValid(req.params.id)) {
-    return res.status(400).send('Invalid id');
+    return res.status(400).send('Bad Request - Invalid Id');
   }
 
-  Book.findByIdAndDelete(req.params.id, function (err, doc) {
+  Purchase.findByIdAndDelete(req.params.id, function (err, doc) {
     if (err) return res.status(400).send(err);
-    res.send(doc);
+    if (!doc) return res.status(404).send('Not Found');
+    res.status(200).send(doc);
   });
 });
 

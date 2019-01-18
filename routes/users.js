@@ -19,7 +19,7 @@ router.post('/', validate(userSchema), async(req, res) => {
       
       const user = new User(req.body);
       user.save(function (err, doc) {
-        if (err) return res.status(400).send(err);
+        if (err) return res.status(500).send(err);
         generateAuthToken(req.body.id)
         .then((token) => {
           res.header('x-auth-token', token).status(201).send();
@@ -49,18 +49,18 @@ router.post('/', validate(userSchema), async(req, res) => {
  */
 router.post('/login', async(req, res) => {
   User.findOne({email: req.body.email}, function (err, doc) {
-    if (err) return res.status(400).send(err);
-    if (!doc) return res.status(400).send('Invalid email or password');
+    if (err) return res.status(500).send(err);
+    if (!doc) return res.status(400).send('Bad Request - Invalid email or password');
 
     bcrypt.compare(req.body.password, doc.password)
     .then((valid)=>{
       if (!valid) {
-        return res.status(400).send('Invalid email or password');
+        return res.status(400).send('Bad Request - Invalid email or password');
       }
   
       generateAuthToken(doc.id)
         .then((token) => {
-          res.header('x-auth-token', token).send(_.pick(doc, ["id", "email"]));
+          res.header('x-auth-token', token).status(200).send(_.pick(doc, ["id", "email"]));
         })
         .catch((err) => {
           res.status(500).send(err);
@@ -76,18 +76,18 @@ router.post('/login', async(req, res) => {
 // en redes sociales como facebook
 router.post('/me', async(req, res) => {
   const token = req.header('x-auth-token');
-  if (!token) return res.status(401).send('Access denied. No token provided.');
+  if (!token) return res.status(401).send('Unauthorized - No token provided.');
 
   decodeAuthToken(token)
   .then((decoded)=> {
     User.findOne({_id: decoded._id}, function (err, doc) {
-      if (err) return res.status(400).send(err);
-      if (!doc) return res.status(400).send('user error');
-      res.send(_.pick(doc, ["id", "email"]));
+      if (err) return res.status(500).send(err);
+      if (!doc) return res.status(404).send('Not Found');
+      res.status(200).send(_.pick(doc, ["id", "email"]));
     });
   })
   .catch((err) => {
-    res.status(400).send('Invalid token.' + err.name);
+    res.status(401).send(`Unauthorized - ${err.name}.`);
   });
 });
 

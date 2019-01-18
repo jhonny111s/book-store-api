@@ -20,7 +20,6 @@ router.get('/', (req, res) => {
   ])
   .exec(function (err, docs) {
     if (err) return res.status(500).send(err);
-    if (docs.length === 0) return res.status(404).send('Not Found');
     res.status(200).send(docs);
   });
 });
@@ -58,6 +57,7 @@ router.delete('/:id', (req, res) => {
 
   Book.findByIdAndDelete(req.params.id, function (err, doc) {
     if (err) return res.status(500).send(err);
+    if (!doc) return res.status(404).send('Not Found');
     res.status(200).send(doc);
     // res.status(204).send(); // si no envia datos
   });
@@ -96,6 +96,7 @@ router.patch('/:id', (req, res) => {
   // los valores que mandamos, sin embargo esta es una aproximación muy simple de un patch.
   Book.findByIdAndUpdate(req.params.id, mergePatch(req.body) ,function (err, doc) {
     if (err) return res.status(500).send(err);
+    if (!doc) return res.status(404).send('Not Found');
     res.status(200).send(doc);
   });
 });
@@ -108,7 +109,8 @@ router.put('/:id', validate(bookSchema), (req, res) => {
 
   Book.findByIdAndUpdate(req.params.id, req.body, {upsert:true} ,function (err, doc) {
     if (err) return res.status(500).send(err);
-    res.status(200).send(doc);
+    if (!doc) return res.status(204).send();
+    res.send(doc);
   });
 });
 
