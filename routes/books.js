@@ -72,9 +72,29 @@ router.patch('/:id', (req, res) => {
     return res.status(400).send('Bad Request - Invalid Id');
   }
 
+  // Simula la funcionalidad del patch si un dato es enviado con valor se actualiza
+  // si este es enviado null se remueve.
+  function mergePatch(patch) {
+    const update = {"$set": {}, "$unset": {}};
+    if (typeof(patch) !== 'object') return patch;
+
+    for (let item in patch) {
+      if (patch[item] === null) {
+        update["$unset"][item] = patch[item];
+      }
+      else {
+        update["$set"][item] = patch[item];
+      }
+    }
+
+    if (Object.keys(update["$set"]).length === 0) delete update["$set"];
+    if (Object.keys(update["$unset"]).length === 0) delete update["$unset"];
+    return update;
+  }
+
   // Para no complicarnos por el momento se va a hacer un set osea remplazar
   // los valores que mandamos, sin embargo esta es una aproximación muy simple de un patch.
-  Book.findByIdAndUpdate(req.params.id, {$set: req.body } ,function (err, doc) {
+  Book.findByIdAndUpdate(req.params.id, mergePatch(req.body) ,function (err, doc) {
     if (err) return res.status(500).send(err);
     res.status(200).send(doc);
   });
