@@ -3,9 +3,12 @@
 const express = require('express');
 const router = express.Router();
 const validate = require('../middleware/validation');
+const auth = require('../middleware/auth');
 const { authorSchema, Author } = require('../models/jsonschemas/author');
 const mongodb = require("mongodb");
 
+// Se aplica el middleware de authorización a todos los metodos
+router.use(auth);
 
 router.get('/', (req, res) => {
   Author.find({}, function (err, authors) {

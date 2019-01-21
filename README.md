@@ -48,3 +48,5 @@
 ## authorization
 
 - Se agrego un middleware, el cual se encarga de authorizar una acción siempre y cuando esta se encuentre entre los permisos brindados, el ejemplo se manjo en books donde es necesario que el token contenga los permisos necesarios  {permissions: {"/api/books": ["GET", "POST", "UPDATE"], ..}}
+- Por el momento no contamos con permisos por lo que al crearse el token se debe agregar los permisos al payload para probar, en la siguiente sección vamos a crear los permisos.
+- Podemos aplicar el middleware a todas las rutas agregando en startupd/routes  app.use(auth) sin embargo no vamos a poder loguearnos porque nos va a pedir un token que se supone apenas vamos a obtener, o podemos hacerlo para cada archivo de una ruta como se hizo en routes/author donde se agrego  router.use(auth).
