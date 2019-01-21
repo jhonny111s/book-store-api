@@ -41,6 +41,10 @@ const User = mongoose.model('Users', new mongoose.Schema({
     password: {
         type: String,
         required: true
+    },
+    role: {
+        type: Number,
+        default: 2 // guest
     }
   }));
 
