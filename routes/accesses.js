@@ -3,13 +3,12 @@
 const express = require('express');
 const router = express.Router();
 const validate = require('../middleware/validation');
-const auth = require('../middleware/auth');
-const { roleSchema, Role } = require('../models/jsonschemas/role');
+const { accessSchema, Access } = require('../models/jsonschemas/access');
 
 router.get('/', (req, res) => {
-    Role.find({}, function (err, roles) {
+    Access.find({}, function (err, accesses) {
       if (err) return res.status(500).send(err);
-      res.status(200).send(roles);
+      res.status(200).send(accesses);
     });
   });
 
@@ -18,23 +17,18 @@ router.get('/:code', (req, res) => {
     return res.status(400).send('Bad Request - Invalid Id');
   }
 
-  Role.aggregate([
-    {"$match": { code: parseInt(req.params.code) }},
-    { "$lookup": {
-      from: "accesses", localField: "accesses", foreignField: "code", as: "accesses"}
-    }
-  ])
-  .exec(function (err, docs) {
+  Role.findOne({code: req.params.code}, function (err, role) {
     if (err) return res.status(500).send(err);
-    res.status(200).send(docs);
+    if (!role) return res.status(404).send('Not Found');
+    res.status(200).send(role);
   });
 });
 
-router.post('/', validate(roleSchema), (req, res) => {
-  const role = new Role(req.body);
-  role.save(function (err, doc) {
+router.post('/', validate(accessSchema), (req, res) => {
+  const access = new Access(req.body);
+  access.save(function (err, doc) {
     if (err) return res.status(500).send(err);
-    res.status(201).location(`api/roles/${doc.id}`).send(doc);
+    res.status(201).location(`api/access/${doc.id}`).send(doc);
   });
 });
 
@@ -43,7 +37,7 @@ router.delete('/:code', (req, res) => {
     return res.status(400).send('Bad Request - Invalid Id');
   }
 
-  Role.findOneAndDelete({code: req.params.code}, function (err, doc) {
+  access.findOneAndDelete({code: req.params.code}, function (err, doc) {
     if (err) return res.status(500).send(err);
     if (!doc) return res.status(404).send('Not Found');
     res.status(200).send(doc);
@@ -82,7 +76,7 @@ router.patch('/:code', (req, res) => {
 
   // Para no complicarnos por el momento se va a hacer un set osea remplazar
   // los valores que mandamos, sin embargo esta es una aproximación muy simple de un patch.
-  Role.findOneAndUpdate({code: req.params.code}, mergePatch(req.body) ,function (err, doc) {
+  Access.findOneAndUpdate({code: req.params.code}, mergePatch(req.body) ,function (err, doc) {
     if (err) return res.status(500).send(err);
     if (!doc) return res.status(404).send('Not Found');
     res.status(200).send(doc);
@@ -90,12 +84,12 @@ router.patch('/:code', (req, res) => {
 });
 
 // Actualiza todo el recurso, si no existe se crea
-router.put('/:code', validate(roleSchema), (req, res) => {
+router.put('/:code', validate(accessSchema), (req, res) => {
   if (!req.params.code) {
     return res.status(400).send('Bad Request - Invalid Id');
   }
 
-  Role.findOneAndUpdate({code: req.params.code}, req.body, {upsert:true} ,function (err, doc) {
+  Access.findOneAndUpdate({code: req.params.code}, req.body, {upsert:true} ,function (err, doc) {
     if (err) return res.status(500).send(err);
     if (!doc) return res.status(204).send();
     res.send(doc);

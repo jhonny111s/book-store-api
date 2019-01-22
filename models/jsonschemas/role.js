@@ -16,7 +16,7 @@ const roleSchema = {
         "description": "code",
         "type": "number",
     },
-    "accesess": {
+    "accesses": {
         "description": "array of access ids",
         "type": "array",
         "minItems": 1,
@@ -42,10 +42,14 @@ const Role = mongoose.model('roles', new mongoose.Schema({
       unique: true,
       required: true
   },
-  accesess: {
+  accesses: {
       type: [String],
       default: "0002" // guest
-  }
+  },
+  isAdmin: {
+    type: Boolean,
+    default: 0
+}
 }));
 
 exports.roleSchema = roleSchema;

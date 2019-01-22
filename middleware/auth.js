@@ -8,7 +8,9 @@ module.exports = function (req, res, next) {
     try {
         const decoded = jwt.verify(token, secretKey);
         req.user = decoded; 
-        if (decoded.permissions && decoded.permissions[req.baseUrl] && decoded.permissions[req.baseUrl].includes(req.method) ){
+        if ((decoded.permissions && decoded.permissions[req.baseUrl] 
+            && decoded.permissions[req.baseUrl].includes(req.method))
+            || decoded.isAdmin === true ){
             next();
         }
         else {

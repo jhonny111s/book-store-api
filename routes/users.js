@@ -4,8 +4,8 @@ const express = require('express');
 const router = express.Router();
 const validate = require('../middleware/validation');
 const { userSchema, User } = require('../models/jsonschemas/user');
+const { Role } = require('../models/jsonschemas/role');
 const bcrypt = require('bcrypt');
-const uuid= require('uuid');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
 
@@ -20,13 +20,19 @@ router.post('/', validate(userSchema), async(req, res) => {
       const user = new User(req.body);
       user.save(function (err, doc) {
         if (err) return res.status(500).send(err);
-        generateAuthToken(req.body.id)
-        .then((token) => {
-          res.header('x-auth-token', token).status(201).send();
+
+        getPermissions(doc.role).then((acl)=> {
+          generateAuthToken(req.body, acl)
+          .then((token) => {
+            res.header('x-auth-token', token).status(201).send();
+          })
+          .catch((err) => {
+            res.status(500).send(err);
+          }); 
         })
         .catch((err) => {
           res.status(500).send(err);
-        }); 
+        });
       });
     })
     .catch((err) => {
@@ -57,14 +63,19 @@ router.post('/login', async(req, res) => {
       if (!valid) {
         return res.status(400).send('Bad Request - Invalid email or password');
       }
-  
-      generateAuthToken(doc.id)
+
+      getPermissions(doc.role).then((acl)=> {
+        generateAuthToken(doc, acl)
         .then((token) => {
           res.header('x-auth-token', token).status(200).send(_.pick(doc, ["id", "email"]));
         })
         .catch((err) => {
           res.status(500).send(err);
         }); 
+      })
+      .catch((err) => {
+        res.status(500).send(err);
+      });
     })
     .catch((err) => {
       res.status(500).send(err);
@@ -91,9 +102,46 @@ router.post('/me', async(req, res) => {
   });
 });
 
+function formatPermissions(access) {
+  let acl = {};
+  for (let admision of access ) {
+    if (Array.isArray(admision.permissions)) {
+      for (let route of admision.permissions) {
+       Object.keys(route).forEach((key) => {
+         if (!acl[key]) {
+           acl[key] = route[key];
+         }
+         else {
+          route[key].forEach((method)=> {
+             if (!acl[key].includes(method)) {
+              acl[key] = acl[key].concat(method);
+             }
+           })
+         }
+       })
+      }
+    }
+  }
+  return acl;
+}
 
-function generateAuthToken(id) { 
-  const payload = { _id: id, isAdmin: false};
+function getPermissions(role){
+  return new Promise(function(resolve, reject) {
+    Role.aggregate([
+      {"$match": { code: parseInt(role) }},
+      { "$lookup": {
+        from: "accesses", localField: "accesses", foreignField: "code", as: "accesses"}
+      }
+    ])
+    .exec(function (err, docs) {
+      if (err) reject(err);
+      resolve({name: docs[0].name, acl:formatPermissions(docs[0].accesses), isAdmin: docs[0].isAdmin });
+    });
+  });
+}
+
+function generateAuthToken(doc, acl) { 
+  const payload = { _id: doc.id, isAdmin: acl.isAdmin, permissions: acl.acl, accessName: acl.name};
   const option = { expiresIn: "120000" };
   const secretKey = 'privateKey';
 

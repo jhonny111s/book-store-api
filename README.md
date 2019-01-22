@@ -50,3 +50,10 @@
 - Se agrego un middleware, el cual se encarga de authorizar una acción siempre y cuando esta se encuentre entre los permisos brindados, el ejemplo se manjo en books donde es necesario que el token contenga los permisos necesarios  {permissions: {"/api/books": ["GET", "POST", "UPDATE"], ..}}
 - Por el momento no contamos con permisos por lo que al crearse el token se debe agregar los permisos al payload para probar, en la siguiente sección vamos a crear los permisos.
 - Podemos aplicar el middleware a todas las rutas agregando en startupd/routes  app.use(auth) sin embargo no vamos a poder loguearnos porque nos va a pedir un token que se supone apenas vamos a obtener, o podemos hacerlo para cada archivo de una ruta como se hizo en routes/author donde se agrego  router.use(auth).
+
+## accessControl
+
+- Al crear un usuario se le asigana automaticamente un rol el cual se le asigno el numero 2 para designar que tiene permisos de invitado, el rol tambien muestra si es administrador o no.
+- Se creo el modelo y ruta de los roles donde este tiene un nombre, codigo y los codigos de los accesos que tiene en la aplicación.
+- Se creo el modelo y rutas de access en el cual estan los permisos a los metodos (Acces Control List), aqui si queremos permitir obtener los datos de los libros debemos agregar {permissions: {"/api/books": ["GET"]}}.
+- Al registrarnos o al loguearnos en user se obtienen los permisos y se procesan para darles el formato necesario para enviarlos en el token y el middleware auth pueda authorizar.
