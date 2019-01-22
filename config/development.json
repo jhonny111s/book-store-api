@@ -1,0 +1,8 @@
+{
+    "appName": "Books store Development",
+    "dbConfig": {
+        "host": "localhost",
+        "port": "27017",
+        "dbName": "library_dev"
+    }
+}

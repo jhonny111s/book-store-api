@@ -1,0 +1,8 @@
+{
+    "appName": "Books store Production",
+    "dbConfig": {
+        "host": "prod-db-server",
+        "port": "27018",
+        "dbName": "library_prod"
+    }
+}

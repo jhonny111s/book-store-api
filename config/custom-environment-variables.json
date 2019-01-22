@@ -1,0 +1,7 @@
+{
+    "jwtSecretKey": "JWT_SECRET_KEY",
+    "dbConfig": {
+      "user": "DB_USER",
+      "password": "DB_PASSWORD"
+    }
+  }
