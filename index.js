@@ -1,13 +1,14 @@
 const express = require('express');
 const app = express();
 const config = require('config');
+const logger = require('./startup/logger');
 
 require('./startup/routes')(app);
-require('./startup/db')();
+require('./startup/db')(logger);
 
 
-console.log(`ENVIROMENT: ${process.env.NODE_ENV || 'default'}`);
-console.log(`NAME_APP: ${config.get("appName")}`);
+logger.info(`ENVIROMENT: ${process.env.NODE_ENV || 'default'}`);
+logger.info(`NAME_APP: ${config.get("appName")}`);
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => console.info(`Listening on port ${port}...`));
+app.listen(port, () => logger.info(`Listening on port ${port}...`));

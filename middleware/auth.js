@@ -14,7 +14,7 @@ module.exports = function (req, res, next) {
     if (!token) return res.status(401).send('Unauthorized - No token provided.');
 
     jwt.verify(token, secretKey, function(err, decoded) {
-        if (err)  res.status(401).send(`Unauthorized - ${err}.`);
+        if (err)  return res.status(401).send(`Unauthorized - ${err}.`);
         if ((decoded.permissions && decoded.permissions[req.baseUrl] 
             && decoded.permissions[req.baseUrl].includes(req.method))
             || decoded.isAdmin === true ){

@@ -63,3 +63,9 @@
 - En esta aplicación hasta el momento hemos expuesto datos que deberian ser privados (no poder ser consultados desde el repositorio) como la llave secreta para generar el token y los datos de usuario y contraseña de nuestra base de datos, para solucionar esto vamos a usar el paquete config de npm.
 - config nos permite obtener información segun el ambiente (process.env.NODE_ENV) en que estemos trabajando (development, production, test ..), ya que no deberiamos estar cambiando manualmente esos datos desde el código.
 - Los datos que no queremos compartir se van a obtener de las variables de ambiente y para eso primero debemos agregarlas export DB_USER=admin y vara cambiar de ambiente export NODE_ENV=production., por ahora el unico ambiente funcional es development el cual esta por defecto.
+
+## logger
+
+- Toda aplicación necesita poder verificar que errores se han producido, es por eso que vamos a implementar un logger con el paquete winston, en el cual vamos a registrar todos los errores que presentemos.
+- Se creo el logguer el cual en un archivo error.js guarda los errores y en combined.js el resto para nuestro caso info.
+- Para comenzar vamos a usar el logger en el inicio de la aplicación y cuando se conecta en la base de datos.

@@ -1,13 +1,13 @@
 const mongoose = require('mongoose');
 const config = require('config');
 
-module.exports = function() {
+module.exports = function(logger) {
   const dbConfig = config.get('dbConfig');
   const url = `mongodb://${dbConfig.host}:${dbConfig.port}/${dbConfig.dbName}`;
 
   if (!(config.has('dbConfig.user') && config.has('dbConfig.password'))) {
-    console.log("Database error: DB user or password undefined");
-    process.exit(1);
+    logger.error("DB user or password enviroment variable undefined");
+    // process.exit(1);
   } 
 
   mongoose.connect(url,
@@ -16,8 +16,8 @@ module.exports = function() {
       "user": dbConfig.user, // root
       "pass": dbConfig.password, // password
   })
-    .then(() => console.log(`Connect to ${url}`))
+    .then(() => logger.info(`Connect to ${url}`))
     .catch((err) => {
-      console.log("Database error:", err);
+      logger.error(err);
     });
 }
