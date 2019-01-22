@@ -8,6 +8,15 @@ const { Role } = require('../models/jsonschemas/role');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
+const config = require('config');
+
+
+if (!config.has('jwtSecretKey')) {
+  console.log('Error jwtSecretKey is not defined');
+  process.exit(1);
+}
+
+const secret_key = config.get('jwtSecretKey');
 
 
 // Permite crear un usuario e inmediatamente generar el token de autenticación el la cabecera
@@ -23,7 +32,7 @@ router.post('/', validate(userSchema), async(req, res) => {
         if (err) return res.status(500).send(err);
 
         getPermissions(doc.role).then((acl)=> {
-          generateAuthToken(req.body, acl)
+          generateAuthToken(doc, acl)
           .then((token) => {
             res.header('x-auth-token', token).status(201).send();
           })
@@ -136,15 +145,20 @@ function getPermissions(role){
     ])
     .exec(function (err, docs) {
       if (err) reject(err);
-      resolve({name: docs[0].name, acl:formatPermissions(docs[0].accesses), isAdmin: docs[0].isAdmin });
+      if (docs.length === 0) {
+        resolve({});
+      }
+      else {
+        resolve({name: docs[0].name, acl:formatPermissions(docs[0].accesses), isAdmin: docs[0].isAdmin });
+      }  
     });
   });
 }
 
 function generateAuthToken(doc, acl) { 
-  const payload = { _id: doc.id, isAdmin: acl.isAdmin, permissions: acl.acl, accessName: acl.name};
+  const payload = { _id: doc.id, isAdmin: acl.isAdmin || false, permissions: acl.acl || {}, accessName: acl.name || null};
   const option = { expiresIn: "120000" };
-  const secretKey = 'privateKey';
+  const secretKey = secret_key;
 
   return new Promise(function(resolve, reject) {
     jwt.sign( payload, secretKey, option, function(err, token) {
@@ -155,7 +169,7 @@ function generateAuthToken(doc, acl) {
 }
 
 function decodeAuthToken(token) {
-  const secretKey = 'privateKey';
+  const secretKey = secret_key;
 
   return new Promise(function(resolve, reject) {
     jwt.verify(token, secretKey, function(err, decoded) {

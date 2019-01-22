@@ -57,3 +57,9 @@
 - Se creo el modelo y ruta de los roles donde este tiene un nombre, codigo y los codigos de los accesos que tiene en la aplicación.
 - Se creo el modelo y rutas de access en el cual estan los permisos a los metodos (Acces Control List), aqui si queremos permitir obtener los datos de los libros debemos agregar {permissions: {"/api/books": ["GET"]}}.
 - Al registrarnos o al loguearnos en user se obtienen los permisos y se procesan para darles el formato necesario para enviarlos en el token y el middleware auth pueda authorizar.
+
+## config
+
+- En esta aplicación hasta el momento hemos expuesto datos que deberian ser privados (no poder ser consultados desde el repositorio) como la llave secreta para generar el token y los datos de usuario y contraseña de nuestra base de datos, para solucionar esto vamos a usar el paquete config de npm.
+- config nos permite obtener información segun el ambiente (process.env.NODE_ENV) en que estemos trabajando (development, production, test ..), ya que no deberiamos estar cambiando manualmente esos datos desde el código.
+- Los datos que no queremos compartir se van a obtener de las variables de ambiente y para eso primero debemos agregarlas export DB_USER=admin y vara cambiar de ambiente export NODE_ENV=production., por ahora el unico ambiente funcional es development el cual esta por defecto.
