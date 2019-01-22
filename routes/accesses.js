@@ -3,7 +3,10 @@
 const express = require('express');
 const router = express.Router();
 const validate = require('../middleware/validation');
+const auth = require('../middleware/auth');
 const { accessSchema, Access } = require('../models/jsonschemas/access');
+
+router.use(auth);
 
 router.get('/', (req, res) => {
     Access.find({}, function (err, accesses) {

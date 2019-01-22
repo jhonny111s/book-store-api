@@ -9,6 +9,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
 
+
 // Permite crear un usuario e inmediatamente generar el token de autenticación el la cabecera
 router.post('/', validate(userSchema), async(req, res) => {
   // Con bcrypt lo que hacemos es encriptar nuestra contraseña, como esto toma tiempo

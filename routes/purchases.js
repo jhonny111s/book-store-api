@@ -3,8 +3,11 @@
 const express = require('express');
 const router = express.Router();
 const validate = require('../middleware/validation');
+const auth = require('../middleware/auth');
 const { purchaseSchema, Purchase } = require('../models/jsonschemas/purchase');
 const mongodb = require("mongodb");
+
+router.use(auth);
 
 router.get('/:id', (req, res) => {
   if (!mongodb.ObjectID.isValid(req.params.id)) {

@@ -6,6 +6,8 @@ const validate = require('../middleware/validation');
 const auth = require('../middleware/auth');
 const { roleSchema, Role } = require('../models/jsonschemas/role');
 
+router.use(auth);
+
 router.get('/', (req, res) => {
     Role.find({}, function (err, roles) {
       if (err) return res.status(500).send(err);
