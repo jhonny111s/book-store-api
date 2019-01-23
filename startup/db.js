@@ -7,7 +7,7 @@ module.exports = function(logger) {
 
   if (!(config.has('dbConfig.user') && config.has('dbConfig.password'))) {
     logger.error("DB user or password enviroment variable undefined");
-    // process.exit(1);
+    process.exit(1);
   } 
 
   mongoose.connect(url,

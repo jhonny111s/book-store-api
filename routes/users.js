@@ -9,49 +9,61 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
 const config = require('config');
+const logger = require('../startup/logger');
 
 
 if (!config.has('jwtSecretKey')) {
-  console.log('Error jwtSecretKey is not defined');
+  logger.error('jwtSecretKey is not defined');
   process.exit(1);
 }
 
 const secret_key = config.get('jwtSecretKey');
 
 
+function handleError(err, req, res) {
+  const mesagge = `[${req.method} - ${req.baseUrl}]::[${err}]::[${JSON.stringify(req.body)}]`;
+  logger.error(mesagge);
+  return res.status(500).send();
+}
+
+
 // Permite crear un usuario e inmediatamente generar el token de autenticación el la cabecera
 router.post('/', validate(userSchema), async(req, res) => {
-  // Con bcrypt lo que hacemos es encriptar nuestra contraseña, como esto toma tiempo
-  // debemos aseguranos de que sea asincrono
-  bcrypt.genSalt(10).then((salt)=> {
-    bcrypt.hash(req.body.password, salt).then((hash) => {
-      req.body.password = hash;
-      
-      const user = new User(req.body);
-      user.save(function (err, doc) {
-        if (err) return res.status(500).send(err);
+  User.findOne({email: req.body.email}, function (err, doc) {
+    if (err) handleError(err, req, res);
+    if (doc) return res.status(200).send('user already registred. Please use login');
+      // Con bcrypt lo que hacemos es encriptar nuestra contraseña, como esto toma tiempo
+      // debemos aseguranos de que sea asincrono
+      bcrypt.genSalt(10).then((salt)=> {
+        bcrypt.hash(req.body.password, salt).then((hash) => {
+          req.body.password = hash;
+          
+          const user = new User(req.body);
+          user.save(function (err, doc) {
+            if (err) handleError(err, req, res);
 
-        getPermissions(doc.role).then((acl)=> {
-          generateAuthToken(doc, acl)
-          .then((token) => {
-            res.header('x-auth-token', token).status(201).send();
-          })
-          .catch((err) => {
-            res.status(500).send(err);
-          }); 
+            getPermissions(doc.role).then((acl)=> {
+              generateAuthToken(doc, acl)
+              .then((token) => {
+                res.header('x-auth-token', token).status(201).send();
+              })
+              .catch((err) => {
+                handleError(err, req, res);
+              }); 
+            })
+            .catch((err) => {
+              handleError(err, req, res);
+            });
+          });
         })
         .catch((err) => {
-          res.status(500).send(err);
+          handleError(err, req, res);
         });
+      })
+      .catch((err) => {
+        handleError(err, req, res);
       });
-    })
-    .catch((err) => {
-      res.status(500).send(err);
     });
-  })
-  .catch((err) => {
-    res.status(500).send(err);
-  });
 });
 
 /* 
@@ -80,15 +92,15 @@ router.post('/login', async(req, res) => {
           res.header('x-auth-token', token).status(200).send(_.pick(doc, ["id", "email"]));
         })
         .catch((err) => {
-          res.status(500).send(err);
+          handleError(err, req, res);
         }); 
       })
       .catch((err) => {
-        res.status(500).send(err);
+        handleError(err, req, res);
       });
     })
     .catch((err) => {
-      res.status(500).send(err);
+      handleError(err, req, res);
     });
   });
 });
@@ -145,8 +157,10 @@ function getPermissions(role){
     ])
     .exec(function (err, docs) {
       if (err) reject(err);
+      // el role no existe, se maneja como un rol sin permisos
       if (docs.length === 0) {
-        resolve({});
+        logger.warn(`Rol ${role} does not exist`);
+        resolve({name: null, acl:{}, isAdmin: false });
       }
       else {
         resolve({name: docs[0].name, acl:formatPermissions(docs[0].accesses), isAdmin: docs[0].isAdmin });
@@ -156,10 +170,9 @@ function getPermissions(role){
 }
 
 function generateAuthToken(doc, acl) { 
-  const payload = { _id: doc.id, isAdmin: acl.isAdmin || false, permissions: acl.acl || {}, accessName: acl.name || null};
+  const payload = { _id: doc.id, isAdmin: acl.isAdmin, permissions: acl.acl, accessName: acl.name};
   const option = { expiresIn: "120000" };
   const secretKey = secret_key;
-
   return new Promise(function(resolve, reject) {
     jwt.sign( payload, secretKey, option, function(err, token) {
       if (err) reject(err);
