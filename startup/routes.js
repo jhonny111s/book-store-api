@@ -8,6 +8,7 @@ const purchases = require('../routes/purchases');
 const users = require('../routes/users');
 const roles = require('../routes/roles');
 const accesses = require('../routes/accesses');
+const response = require('../middleware/response');
 
 module.exports = function(app) {
   // Express usa los siguientes middleware que estan basados en body parser
@@ -16,6 +17,7 @@ module.exports = function(app) {
   // app.use(bodyParser.json());  // to support JSON-encoded bodies
   // app.use(bodyParser.urlencoded({ extended: true })); // to support URL-encoded bodies
 
+  app.use(response);
 
   // Aqui creamos los recursos
   app.use('/api/books', books);

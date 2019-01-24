@@ -69,3 +69,4 @@
 - Toda aplicación necesita poder verificar que errores se han producido, es por eso que vamos a implementar un logger con el paquete winston, en el cual vamos a registrar todos los errores que presentemos.
 - Se creo el logguer el cual en un archivo error.js guarda los errores y en combined.js el resto para nuestro caso info.
 - Para comenzar vamos a usar el logger en el inicio de la aplicación y cuando se conecta en la base de datos.
+- Se creo un middleware (response) para no repetir código al implementar el logger en todas las rutas.

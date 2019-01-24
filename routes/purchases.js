@@ -10,14 +10,12 @@ const mongodb = require("mongodb");
 router.use(auth);
 
 router.get('/:id', (req, res) => {
-  if (!mongodb.ObjectID.isValid(req.params.id)) {
-    return res.status(400).send('Bad Request - Invalid Id');
-  }
+  if (!mongodb.ObjectID.isValid(req.params.id)) return res.generateResponse(400, null, 'Bad Request - Invalid Id');
 
   Purchase.findById(req.params.id, function (err, docs) {
-    if (err) return res.status(500).send(err);
-    if (!docs) return res.status(404).send('Not Found');
-    res.status(200).send(docs);
+    if (err) return res.generateResponse(500, null, err);
+    if (!docs) return res.generateResponse(404, null, 'Not Found');
+    return res.generateResponse(200, null, docs);
   });
 });
 
@@ -46,20 +44,18 @@ router.post('/', validate(purchaseSchema), (req, res) => {
 
   const purchase = new Purchase(purchaseFormat(req.body));
   purchase.save(function (err, doc) {
-    if (err) return res.status(500).send(err);
-    res.status(201).location(`api/purchases/${doc.id}`).send(doc);
+    if (err) return res.generateResponse(500, null, err);
+    return res.location(`api/purchases/${doc.id}`).generateResponse(201, null, doc);
   });
 });
 
 router.delete('/:id', (req, res) => {
-  if (!mongodb.ObjectID.isValid(req.params.id)) {
-    return res.status(400).send('Bad Request - Invalid Id');
-  }
+  if (!mongodb.ObjectID.isValid(req.params.id)) return res.generateResponse(400, null, 'Bad Request - Invalid Id');
 
   Purchase.findByIdAndDelete(req.params.id, function (err, doc) {
-    if (err) return res.status(400).send(err);
-    if (!doc) return res.status(404).send('Not Found');
-    res.status(200).send(doc);
+    if (err) return res.generateResponse(500, null, err);
+    if (!doc) return res.generateResponse(404, null, 'Not Found');
+    return res.generateResponse(200, null, doc);
   });
 });
 

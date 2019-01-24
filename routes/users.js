@@ -19,19 +19,11 @@ if (!config.has('jwtSecretKey')) {
 
 const secret_key = config.get('jwtSecretKey');
 
-
-function handleError(err, req, res) {
-  const mesagge = `[${req.method} - ${req.baseUrl}]::[${err}]::[${JSON.stringify(req.body)}]`;
-  logger.error(mesagge);
-  return res.status(500).send();
-}
-
-
 // Permite crear un usuario e inmediatamente generar el token de autenticación el la cabecera
 router.post('/', validate(userSchema), async(req, res) => {
   User.findOne({email: req.body.email}, function (err, doc) {
-    if (err) handleError(err, req, res);
-    if (doc) return res.status(200).send('user already registred. Please use login');
+    if (err) return res.generateResponse(500, null, err);
+    if (doc) return res.generateResponse(200, null, 'user already registred. Please use login');
       // Con bcrypt lo que hacemos es encriptar nuestra contraseña, como esto toma tiempo
       // debemos aseguranos de que sea asincrono
       bcrypt.genSalt(10).then((salt)=> {
@@ -40,28 +32,28 @@ router.post('/', validate(userSchema), async(req, res) => {
           
           const user = new User(req.body);
           user.save(function (err, doc) {
-            if (err) handleError(err, req, res);
+            if (err) return res.generateResponse(500, null, err);
 
             getPermissions(doc.role).then((acl)=> {
               generateAuthToken(doc, acl)
               .then((token) => {
-                res.header('x-auth-token', token).status(201).send();
+                return res.generateResponse(201, {'x-auth-token': token}, null);
               })
               .catch((err) => {
-                handleError(err, req, res);
+                return res.generateResponse(500, null, err);
               }); 
             })
             .catch((err) => {
-              handleError(err, req, res);
+              return res.generateResponse(500, null, err);
             });
           });
         })
         .catch((err) => {
-          handleError(err, req, res);
+          return res.generateResponse(500, null, err);
         });
       })
       .catch((err) => {
-        handleError(err, req, res);
+        return res.generateResponse(500, null, err);
       });
     });
 });
@@ -77,30 +69,30 @@ router.post('/', validate(userSchema), async(req, res) => {
  */
 router.post('/login', async(req, res) => {
   User.findOne({email: req.body.email}, function (err, doc) {
-    if (err) return res.status(500).send(err);
-    if (!doc) return res.status(400).send('Bad Request - Invalid email or password');
-
+    if (err) return res.generateResponse(500, null, err);
+    if (!doc) return res.generateResponse(400, null, 'Bad Request - Invalid email or password');
+    
     bcrypt.compare(req.body.password, doc.password)
     .then((valid)=>{
       if (!valid) {
-        return res.status(400).send('Bad Request - Invalid email or password');
+        return res.generateResponse(400, null, 'Bad Request - Invalid email or password');
       }
 
       getPermissions(doc.role).then((acl)=> {
         generateAuthToken(doc, acl)
         .then((token) => {
-          res.header('x-auth-token', token).status(200).send(_.pick(doc, ["id", "email"]));
+          return res.generateResponse(200, {'x-auth-token': token}, _.pick(doc, ["id", "email"]));
         })
         .catch((err) => {
-          handleError(err, req, res);
+          return res.generateResponse(500, null, err);
         }); 
       })
       .catch((err) => {
-        handleError(err, req, res);
+        return res.generateResponse(500, null, err);
       });
     })
     .catch((err) => {
-      handleError(err, req, res);
+      return res.generateResponse(500, null, err);
     });
   });
 });
@@ -109,18 +101,18 @@ router.post('/login', async(req, res) => {
 // en redes sociales como facebook
 router.post('/me', async(req, res) => {
   const token = req.header('x-auth-token');
-  if (!token) return res.status(401).send('Unauthorized - No token provided.');
+  if (!token) return res.generateResponse(401, null, 'Unauthorized - No token provided.');
 
   decodeAuthToken(token)
   .then((decoded)=> {
     User.findOne({_id: decoded._id}, function (err, doc) {
-      if (err) return res.status(500).send(err);
-      if (!doc) return res.status(404).send('Not Found');
+      if (err) return res.generateResponse(500, null, err);
+      if (!doc) return res.generateResponse(404, null, 'Not Found');
       res.status(200).send(_.pick(doc, ["id", "email"]));
     });
   })
   .catch((err) => {
-    res.status(401).send(`Unauthorized - ${err.name}.`);
+    return res.generateResponse(401, null, `Unauthorized - ${err.name}.`);
   });
 });
 
@@ -171,7 +163,7 @@ function getPermissions(role){
 
 function generateAuthToken(doc, acl) { 
   const payload = { _id: doc.id, isAdmin: acl.isAdmin, permissions: acl.acl, accessName: acl.name};
-  const option = { expiresIn: "120000" };
+  const option = { expiresIn: "180000" };
   const secretKey = secret_key;
   return new Promise(function(resolve, reject) {
     jwt.sign( payload, secretKey, option, function(err, token) {

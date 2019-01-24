@@ -21,14 +21,14 @@ router.get('/', (req, res) => {
     }
   ])
   .exec(function (err, docs) {
-    if (err) return res.status(500).send(err);
-    res.status(200).send(docs);
+    if (err) return res.generateResponse(500, null, err);
+    return res.generateResponse(200, null, docs);
   });
 });
 
 router.get('/:id', (req, res) => {
   if (!mongodb.ObjectID.isValid(req.params.id)) {
-    return res.status(400).send('Bad Request - Invalid Id');
+    return res.generateResponse(400, null, 'Bad Request - Invalid Id');
   }
 
   Book.aggregate([
@@ -38,29 +38,29 @@ router.get('/:id', (req, res) => {
     }
   ])
   .exec(function (err, doc) {
-    if (err) return res.status(500).send(err);
-    if (doc.length === 0) return res.status(404).send('Not Found');
-    res.status(200).send(doc[0]);
+    if (err) return res.generateResponse(500, null, err);
+    if (doc.length === 0) return res.generateResponse(404, null, 'Not Found');
+    return res.generateResponse(200, null, doc[0]);
   });
 });
 
 router.post('/', validate(bookSchema), (req, res) => {
   const book = new Book(req.body);
   book.save(function (err, doc) {
-    if (err) return res.status(500).send(err);
-    res.status(201).location(`api/books/${doc.id}`).send(doc);
+    if (err) return res.generateResponse(500, null, err);
+    return res.location(`api/books/${doc.id}`).generateResponse(201, null, doc);
   });
 });
 
 router.delete('/:id', (req, res) => {
   if (!mongodb.ObjectID.isValid(req.params.id)) {
-    return res.status(400).send('Bad Request - Invalid Id');
+    return res.generateResponse(400, null, 'Bad Request - Invalid Id');
   }
 
   Book.findByIdAndDelete(req.params.id, function (err, doc) {
-    if (err) return res.status(500).send(err);
-    if (!doc) return res.status(404).send('Not Found');
-    res.status(200).send(doc);
+    if (err) return res.generateResponse(500, null, err);
+    if (!doc) return res.generateResponse(404, null, 'Not Found');
+    return res.generateResponse(200, null, doc);
     // res.status(204).send(); // si no envia datos
   });
 });
@@ -71,7 +71,7 @@ router.delete('/:id', (req, res) => {
 // https://www.rfc-archive.org/getrfc?rfc=6902
 router.patch('/:id', (req, res) => {
   if (!mongodb.ObjectID.isValid(req.params.id)) {
-    return res.status(400).send('Bad Request - Invalid Id');
+    return res.generateResponse(400, null, 'Bad Request - Invalid Id');
   }
 
   // Simula la funcionalidad del patch si un dato es enviado con valor se actualiza
@@ -97,22 +97,22 @@ router.patch('/:id', (req, res) => {
   // Para no complicarnos por el momento se va a hacer un set osea remplazar
   // los valores que mandamos, sin embargo esta es una aproximación muy simple de un patch.
   Book.findByIdAndUpdate(req.params.id, mergePatch(req.body) ,function (err, doc) {
-    if (err) return res.status(500).send(err);
-    if (!doc) return res.status(404).send('Not Found');
-    res.status(200).send(doc);
+    if (err) return res.generateResponse(500, null, err);
+    if (!doc) return res.generateResponse(404, null, 'Not Found');
+    return res.generateResponse(200, null, doc);
   });
 });
 
 // Actualiza todo el recurso, si no existe se crea
 router.put('/:id', validate(bookSchema), (req, res) => {
   if (!mongodb.ObjectID.isValid(req.params.id)) {
-    return res.status(400).send('Bad Request - Invalid Id');
+    return res.generateResponse(400, null, 'Bad Request - Invalid Id');
   }
 
   Book.findByIdAndUpdate(req.params.id, req.body, {upsert:true} ,function (err, doc) {
-    if (err) return res.status(500).send(err);
-    if (!doc) return res.status(204).send();
-    res.send(doc);
+    if (err) return res.generateResponse(500, null, err);
+    if (!doc) return res.generateResponse(404, null, 'Not Found');
+    return res.generateResponse(200, null, doc);
   });
 });
 
