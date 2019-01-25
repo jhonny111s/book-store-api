@@ -70,3 +70,7 @@
 - Se creo el logguer el cual en un archivo error.js guarda los errores y en combined.js el resto para nuestro caso info.
 - Para comenzar vamos a usar el logger en el inicio de la aplicación y cuando se conecta en la base de datos.
 - Se creo un middleware (response) para no repetir código al implementar el logger en todas las rutas.
+
+## test
+
+- 

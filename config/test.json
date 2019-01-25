@@ -4,5 +4,6 @@
         "host": "test-db-server",
         "port": "27018",
         "dbName": "library_test"
-    }
+    },
+    "jwtSecretKey": "testkey"
 }
