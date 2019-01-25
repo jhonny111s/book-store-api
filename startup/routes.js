@@ -9,8 +9,15 @@ const users = require('../routes/users');
 const roles = require('../routes/roles');
 const accesses = require('../routes/accesses');
 const response = require('../middleware/response');
+const config = require('config');
 
 module.exports = function(app) {
+
+  if (!config.has('jwtSecretKey')) {
+    logger.error('jwtSecretKey is not defined');
+    process.exit(1);
+  }
+
   // Express usa los siguientes middleware que estan basados en body parser
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
