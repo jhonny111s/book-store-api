@@ -6,18 +6,11 @@ const validate = require('../middleware/validation');
 const { userSchema, User } = require('../models/jsonschemas/user');
 const { Role } = require('../models/jsonschemas/role');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const _ = require('lodash');
-const config = require('config');
 const logger = require('../startup/logger');
+const { generateAuthToken, decodeAuthToken } = require('../utils/token');
+const { formatPermissions } = require('../utils/util');
 
-
-if (!config.has('jwtSecretKey')) {
-  logger.error('jwtSecretKey is not defined');
-  process.exit(1);
-}
-
-const secret_key = config.get('jwtSecretKey');
 
 // Permite crear un usuario e inmediatamente generar el token de autenticación el la cabecera
 router.post('/', validate(userSchema), async(req, res) => {
@@ -35,7 +28,8 @@ router.post('/', validate(userSchema), async(req, res) => {
             if (err) return res.generateResponse(500, null, err);
 
             getPermissions(doc.role).then((acl)=> {
-              generateAuthToken(doc, acl)
+              const payload = { _id: doc.id, isAdmin: acl.isAdmin, permissions: acl.acl, accessName: acl.name};
+              generateAuthToken(payload)
               .then((token) => {
                 return res.generateResponse(201, {'x-auth-token': token}, null);
               })
@@ -79,7 +73,8 @@ router.post('/login', async(req, res) => {
       }
 
       getPermissions(doc.role).then((acl)=> {
-        generateAuthToken(doc, acl)
+        const payload = { _id: doc.id, isAdmin: acl.isAdmin, permissions: acl.acl, accessName: acl.name};
+        generateAuthToken(payload)
         .then((token) => {
           return res.generateResponse(200, {'x-auth-token': token}, _.pick(doc, ["id", "email"]));
         })
@@ -116,29 +111,6 @@ router.post('/me', async(req, res) => {
   });
 });
 
-function formatPermissions(access) {
-  let acl = {};
-  for (let admision of access ) {
-    if (Array.isArray(admision.permissions)) {
-      for (let route of admision.permissions) {
-       Object.keys(route).forEach((key) => {
-         if (!acl[key]) {
-           acl[key] = route[key];
-         }
-         else {
-          route[key].forEach((method)=> {
-             if (!acl[key].includes(method)) {
-              acl[key] = acl[key].concat(method);
-             }
-           })
-         }
-       })
-      }
-    }
-  }
-  return acl;
-}
-
 function getPermissions(role){
   return new Promise(function(resolve, reject) {
     Role.aggregate([
@@ -157,29 +129,6 @@ function getPermissions(role){
       else {
         resolve({name: docs[0].name, acl:formatPermissions(docs[0].accesses), isAdmin: docs[0].isAdmin });
       }  
-    });
-  });
-}
-
-function generateAuthToken(doc, acl) { 
-  const payload = { _id: doc.id, isAdmin: acl.isAdmin, permissions: acl.acl, accessName: acl.name};
-  const option = { expiresIn: "180000" };
-  const secretKey = secret_key;
-  return new Promise(function(resolve, reject) {
-    jwt.sign( payload, secretKey, option, function(err, token) {
-      if (err) reject(err);
-      resolve(token);
-    });
-  });
-}
-
-function decodeAuthToken(token) {
-  const secretKey = secret_key;
-
-  return new Promise(function(resolve, reject) {
-    jwt.verify(token, secretKey, function(err, decoded) {
-      if (err)  reject(err);
-      resolve(decoded);
     });
   });
 }
