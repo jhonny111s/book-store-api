@@ -5,6 +5,7 @@ const router = express.Router();
 const validate = require('../middleware/validation');
 const auth = require('../middleware/auth');
 const { accessSchema, Access } = require('../models/jsonschemas/access');
+const { mergePatch } = require('../utils/util');
 
 router.use(auth);
 
@@ -50,26 +51,6 @@ router.delete('/:code', (req, res) => {
 // https://www.rfc-archive.org/getrfc?rfc=6902
 router.patch('/:code', (req, res) => {
   if (!req.params.code) return res.generateResponse(400, null, 'Bad Request - Invalid Id');
-
-  // Simula la funcionalidad del patch si un dato es enviado con valor se actualiza
-  // si este es enviado null se remueve.
-  function mergePatch(patch) {
-    const update = {"$set": {}, "$unset": {}};
-    if (typeof(patch) !== 'object') return patch;
-
-    for (let item in patch) {
-      if (patch[item] === null) {
-        update["$unset"][item] = patch[item];
-      }
-      else {
-        update["$set"][item] = patch[item];
-      }
-    }
-
-    if (Object.keys(update["$set"]).length === 0) delete update["$set"];
-    if (Object.keys(update["$unset"]).length === 0) delete update["$unset"];
-    return update;
-  }
 
   // Para no complicarnos por el momento se va a hacer un set osea remplazar
   // los valores que mandamos, sin embargo esta es una aproximación muy simple de un patch.

@@ -6,6 +6,7 @@ const validate = require('../middleware/validation');
 const auth = require('../middleware/auth');
 const { authorSchema, Author } = require('../models/jsonschemas/author');
 const mongodb = require("mongodb");
+const { mergePatch } = require('../utils/util');
 
 // Se aplica el middleware de authorización a todos los metodos
 router.use(auth);
@@ -52,24 +53,6 @@ router.delete('/:id', (req, res) => {
 router.patch('/:id', (req, res) => {
   if (!mongodb.ObjectID.isValid(req.params.id)) {
     return res.generateResponse(400, null, 'Bad Request - Invalid Id');
-  }
-
-  function mergePatch(patch) {
-    const update = {"$set": {}, "$unset": {}};
-    if (typeof(patch) !== 'object') return patch;
-
-    for (let item in patch) {
-      if (patch[item] === null) {
-        update["$unset"][item] = patch[item];
-      }
-      else {
-        update["$set"][item] = patch[item];
-      }
-    }
-
-    if (Object.keys(update["$set"]).length === 0) delete update["$set"];
-    if (Object.keys(update["$unset"]).length === 0) delete update["$unset"];
-    return update;
   }
 
   Author.findByIdAndUpdate(req.params.id, mergePatch(req.body) ,function (err, doc) {
