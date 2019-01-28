@@ -21,6 +21,27 @@ function formatPermissions(access) {
     return acl;
   }
 
+// Simula la funcionalidad del patch si un dato es enviado con valor se actualiza
+// si este es enviado null se remueve.
+  function mergePatch(patch) {
+    const update = {"$set": {}, "$unset": {}};
+    if (typeof(patch) !== 'object') return patch;
+
+    for (let item in patch) {
+      if (patch[item] === null) {
+        update["$unset"][item] = patch[item];
+      }
+      else {
+        update["$set"][item] = patch[item];
+      }
+    }
+
+    if (Object.keys(update["$set"]).length === 0) delete update["$set"];
+    if (Object.keys(update["$unset"]).length === 0) delete update["$unset"];
+    return update;
+  }
+
   module.exports = {
-    formatPermissions
+    formatPermissions,
+    mergePatch
   };
