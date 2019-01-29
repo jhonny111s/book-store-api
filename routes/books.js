@@ -9,7 +9,7 @@ const mongodb = require("mongodb");
 const { mergePatch } = require('../utils/util');
 
 
-// router.use(auth);
+router.use(auth);
 // Aqui agregamos los metodos
 // https://www.rfc-archive.org/getrfc?rfc=2068
 

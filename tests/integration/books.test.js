@@ -1,6 +1,7 @@
 const request = require('supertest');
 const app = require('../../index');
-const  { Book } = require('../../models/jsonschemas/book')
+const  { Book } = require('../../models/jsonschemas/book');
+const { generateAuthToken } = require('../../utils/token');
 
 
 describe('routes books', () => {
@@ -9,7 +10,15 @@ describe('routes books', () => {
         let server = "";
         let id = "";
         let book = {};
-    
+        let token = "";
+
+        beforeAll((done) => {
+            generateAuthToken({ _id: 1, isAdmin: true, permissions: {}, accessName: null}).then((auth) => {
+                token = auth;
+                done();
+            });
+        });
+
         beforeEach((done) => {
             book = {
                 "title": "Cien años de Soledad  ",
@@ -38,6 +47,7 @@ describe('routes books', () => {
                 return request(app)
                     .get('/api/books')
                     .set('Accept', 'application/json')
+                    .set('x-auth-token', token)
                     .expect(200)
                     .then(response => {
                         expect(response.body.length).toBe(1);
@@ -48,6 +58,7 @@ describe('routes books', () => {
                 return request(app)
                     .get('/api/books/' + id)
                     .set('Accept', 'application/json')
+                    .set('x-auth-token', token)
                     .expect(200)
                     .then(response => {
                         expect(response.body._id).toBe(id);
@@ -58,6 +69,7 @@ describe('routes books', () => {
                 return request(app)
                     .get('/api/books/5c49fe2c07a39b36cea3d82e')
                     .set('Accept', 'application/json')
+                    .set('x-auth-token', token)
                     .expect('Content-Type', /html/)
                     .expect(404)
                     .then(response => {
@@ -69,6 +81,7 @@ describe('routes books', () => {
                 return request(app)
                     .get('/api/books/wrong')
                     .set('Accept', 'application/json')
+                    .set('x-auth-token', token)
                     .expect('Content-Type', /html/)
                     .expect(400)
                     .then(response => {
@@ -82,6 +95,7 @@ describe('routes books', () => {
                 return request(app)
                     .post('/api/books')
                     .set('Accept', 'application/json')
+                    .set('x-auth-token', token)
                     .send({
                         "title": "doctor sueño",
                         "authors": ["5c49fe2c07a39b36cea3d82e"],
@@ -101,6 +115,7 @@ describe('routes books', () => {
                 return request(app)
                     .post('/api/books')
                     .set('Accept', 'application/json')
+                    .set('x-auth-token', token)
                     .send({})
                     .expect('Content-Type', /json/)
                     .expect(400)
@@ -112,6 +127,7 @@ describe('routes books', () => {
                 return request(app)
                     .delete('/api/books/wrong')
                     .set('Accept', 'application/json')
+                    .set('x-auth-token', token)
                     .expect('Content-Type', /html/)
                     .expect(400)
                     .then(response => {
@@ -123,6 +139,7 @@ describe('routes books', () => {
                 return request(app)
                     .delete('/api/books/'+ id)
                     .set('Accept', 'application/json')
+                    .set('x-auth-token', token)
                     .expect('Content-Type', /json/)
                     .expect(200)
                     .then(response => {
@@ -134,6 +151,7 @@ describe('routes books', () => {
                 return request(app)
                     .delete('/api/books/5c49fe2c07a39b36cea3d82e')
                     .set('Accept', 'application/json')
+                    .set('x-auth-token', token)
                     .expect('Content-Type', /html/)
                     .expect(404)
                     .then(response => {
@@ -148,6 +166,7 @@ describe('routes books', () => {
                 return request(app)
                     .patch('/api/books/5c49fe2c07a39b36cea3d82e')
                     .set('Accept', 'application/json')
+                    .set('x-auth-token', token)
                     .send(book)
                     .expect('Content-Type', /html/)
                     .expect(404)
@@ -160,6 +179,7 @@ describe('routes books', () => {
                 return request(app)
                     .patch('/api/books/wrong')
                     .set('Accept', 'application/json')
+                    .set('x-auth-token', token)
                     .send(book)
                     .expect('Content-Type', /html/)
                     .expect(400)
@@ -173,6 +193,7 @@ describe('routes books', () => {
                 return request(app)
                     .patch('/api/books/' + id)
                     .set('Accept', 'application/json')
+                    .set('x-auth-token', token)
                     .send(book)
                     .expect('Content-Type', /json/)
                     .expect(200)
@@ -189,6 +210,7 @@ describe('routes books', () => {
                 return request(app)
                     .put('/api/books/5c49fe2c07a39b36cea3d82e')
                     .set('Accept', 'application/json')
+                    .set('x-auth-token', token)
                     .send(book)
                     //.expect('Content-Type', /json/)
                     .expect(204)
@@ -201,6 +223,7 @@ describe('routes books', () => {
                 return request(app)
                     .put('/api/books/wrong')
                     .set('Accept', 'application/json')
+                    .set('x-auth-token', token)
                     .send(book)
                     .expect('Content-Type', /html/)
                     .expect(400)
@@ -213,6 +236,7 @@ describe('routes books', () => {
                 return request(app)
                     .put('/api/books/' + id)
                     .set('Accept', 'application/json')
+                    .set('x-auth-token', token)
                     .send(book)
                     .expect('Content-Type', /json/)
                     .expect(200)
