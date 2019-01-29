@@ -9,7 +9,7 @@ const mongodb = require("mongodb");
 const { mergePatch } = require('../utils/util');
 
 
-router.use(auth);
+// router.use(auth);
 // Aqui agregamos los metodos
 // https://www.rfc-archive.org/getrfc?rfc=2068
 
@@ -92,7 +92,7 @@ router.put('/:id', validate(bookSchema), (req, res) => {
 
   Book.findByIdAndUpdate(req.params.id, req.body, {upsert:true} ,function (err, doc) {
     if (err) return res.generateResponse(500, null, err);
-    if (!doc) return res.generateResponse(404, null, 'Not Found');
+    if (!doc) return res.generateResponse(204);
     return res.generateResponse(200, null, doc);
   });
 });
