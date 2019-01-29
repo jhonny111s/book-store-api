@@ -1,9 +1,11 @@
 {
     "appName": "Books store test",
     "dbConfig": {
-        "host": "test-db-server",
-        "port": "27018",
-        "dbName": "library_test"
+        "host": "localhost",
+        "port": "27017",
+        "dbName": "library_test",
+        "user": "root",
+        "password": "password"
     },
     "jwtSecretKey": "testkey"
 }
