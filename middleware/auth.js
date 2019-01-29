@@ -2,11 +2,6 @@ const jwt = require('jsonwebtoken');
 const config = require('config');
 const logger = require('../startup/logger');
 
-if (!config.has('jwtSecretKey')) {
-  logger.error('jwtSecretKey is not defined');
-  process.exit(1);
-}
-
 const secret_key = config.get('jwtSecretKey');
 
 module.exports = function (req, res, next) {

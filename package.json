@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node index.js",
     "test": "jest --verbose",
-    "test-coverage": "jest --coverage --collectCoverageFrom={routes,utils,models}/**/*.{js,jsx}"
+    "test-coverage": "jest --coverage --collectCoverageFrom={routes,utils,models,middleware}/**/*.{js,jsx}"
   },
   "keywords": [
     "api"
