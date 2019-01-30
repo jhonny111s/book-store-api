@@ -73,4 +73,8 @@
 
 ## test
 
-- 
+- Se instalo jest el cual nos sirve para correr los test, para ello en package agregamos los comandos para correr jest y el coverage atraves de npm.
+- En config agregamos las credenciales de la base de datos en test, para que podamos correr los test de integración.
+- Iniciamos con los test más faciles de crear los cuales son los test unitarios ya que probamos funcionalidades que no dependen de ningun componente o libreria externa, como lo son los middleware y los utils
+- Con los test podemos descubrir que es mejor hacer refactorización de nuestro código ya que posiblemente es mejor tener parte de un código en otro lugar y asi testear es mucho más conveniente.
+- Se usa la librería supertest para facilitar llamar nuestro app como un API haciendo los request.
