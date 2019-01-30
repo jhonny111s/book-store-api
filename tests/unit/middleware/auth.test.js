@@ -3,22 +3,24 @@ const auth = require('../../../middleware/auth');
 const express = require('express');
 const { generateAuthToken } = require('../../../utils/token');
 
-const app = express();
-const router = express.Router();
-// simulate a route to test auth middleware
-router.get('/', auth, function(req, res) {
-  res.status(200).json({ name: 'john' });
-});
-
-app.use("/test", router);
 
 describe('middleware auth', () => {
-    let admin = { _id: 1, isAdmin: true, permissions: {}, accessName: null };
-    let guest = { _id: 2, isAdmin: false, permissions: {}, accessName: "guest" };
-    let user = { _id: 3, isAdmin: false, permissions: {"/test": ["GET"]}, accessName: "user" };
-    let tokens = "";
+    const app = express();
+    const router = express.Router();
+    // simulate a route to test auth middleware
+    router.get('/', auth, function(req, res) {
+    res.status(200).json({ name: 'john' });
+    });
+
+    app.use("/test", router);
+
 
     describe('AUTH', () => {
+        let admin = { _id: 1, isAdmin: true, permissions: {}, accessName: null };
+        let guest = { _id: 2, isAdmin: false, permissions: {}, accessName: "guest" };
+        let user = { _id: 3, isAdmin: false, permissions: {"/test": ["GET"]}, accessName: "user" };
+        let tokens = "";
+        
         beforeAll((done) => {
             Promise.all([generateAuthToken(admin),generateAuthToken(guest),generateAuthToken(user)]).then((auth) => {
                 tokens = auth;

@@ -1,27 +1,6 @@
 "use strict";
 
-const Ajv = require('ajv');
-const ajv = new Ajv({$data: true, allErrors: true, async: true});
-
-
-function validateSchema( data, schema) {
-    schema["$async"] = true;
-    const validate = ajv.compile(schema);
-    return new Promise(function(resolve, reject) {
-        validate(data)
-            .then((result) => {
-                resolve(result);
-            })
-            .catch((err) => {
-                if (err instanceof Ajv.ValidationError)
-                    reject(err)
-                else {
-                    reject(err)
-                }
-            });
-    });
-}
-
+const { validateSchema } = require('../utils/validate');
 
 module.exports = function(schema) {
     return function(req, res, next) {
