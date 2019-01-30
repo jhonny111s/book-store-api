@@ -71,7 +71,7 @@
 - Para comenzar vamos a usar el logger en el inicio de la aplicación y cuando se conecta en la base de datos.
 - Se creo un middleware (response) para no repetir código al implementar el logger en todas las rutas.
 
-## test
+## test-1
 
 - Se instalo jest el cual nos sirve para correr los test, para ello en package agregamos los comandos para correr jest y el coverage atraves de npm.
 - En config agregamos las credenciales de la base de datos en test, para que podamos correr los test de integración.
