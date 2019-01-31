@@ -5,72 +5,64 @@ const router = express.Router();
 const validate = require('../middleware/validation');
 const auth = require('../middleware/auth');
 const { authorSchema, Author } = require('../models/jsonschemas/author');
-const mongodb = require("mongodb");
-const { mergePatch } = require('../utils/util');
+const { findAll, findById, save, remove, patch, put } = require('../utils/query');
+
 
 // Se aplica el middleware de authorización a todos los metodos
-router.use(auth);
+//router.use(auth);
 
 router.get('/', (req, res) => {
-  Author.find({}, function (err, authors) {
-    if (err) return res.generateResponse(500, null, err);
-    return res.generateResponse(200, null, authors);
-  });
+  findAll(Author)
+    .then((response) => {
+      return res.generateResponse(response.statusCode, null, response.message);
+    })
+    .catch((error) => {
+      return res.generateResponse(500, null, error);
+    });
 });
 
 router.get('/:id', (req, res) => {
-  if (!mongodb.ObjectID.isValid(req.params.id)) {
-    return res.generateResponse(400, null, 'Bad Request - Invalid Id');
-  }
-
-  Author.findById(req.params.id, function (err, author) {
-    if (err) return res.generateResponse(500, null, err);
-    if (!author) return res.generateResponse(404, null, 'Not Found');
-    return res.generateResponse(200, null, author);
+  findById(Author, req.params.id).then((response) => {
+    return res.generateResponse(response.statusCode, null, response.message);
+  })
+  .catch((error) => {
+    return res.generateResponse(500, null, error);
   });
 });
 
 router.post('/', validate(authorSchema), (req, res) => {
-  const author = new Author(req.body);
-  author.save(function (err, doc) {
-    if (err) return res.generateResponse(500, null, err);
-    return res.location(`api/authors/${doc.id}`).generateResponse(201, null, doc);
+  save(Author, req.body).then((response) => {
+    return res.location(`api/authors/${response.message.id}`).generateResponse(response.statusCode, null, response.message);
+  })
+  .catch((error) => {
+    return res.generateResponse(500, null, error);
   });
 });
 
 router.delete('/:id', (req, res) => {
-  if (!mongodb.ObjectID.isValid(req.params.id)) {
-    return res.generateResponse(400, null, 'Bad Request - Invalid Id');
-  }
-
-  Author.findByIdAndDelete(req.params.id, function (err, doc) {
-    if (err) return res.generateResponse(500, null, err);
-    if (!doc) return res.generateResponse(404, null, 'Not Found');
-    return res.generateResponse(200, null, doc);
+  remove(Author, req.params.id).then((response) => {
+    return res.generateResponse(response.statusCode, null, response.message);
+  })
+  .catch((error) => {
+    return res.generateResponse(500, null, error);
   });
 });
 
 router.patch('/:id', (req, res) => {
-  if (!mongodb.ObjectID.isValid(req.params.id)) {
-    return res.generateResponse(400, null, 'Bad Request - Invalid Id');
-  }
-
-  Author.findByIdAndUpdate(req.params.id, mergePatch(req.body) ,function (err, doc) {
-    if (err) return res.generateResponse(500, null, err);
-    if (!author) return res.generateResponse(404, null, 'Not Found');
-    return res.generateResponse(200, null, doc);
+  patch(Author, req.params.id, req.body).then((response) => {
+    return res.generateResponse(response.statusCode, null, response.message);
+  })
+  .catch((error) => {
+    return res.generateResponse(500, null, error);
   });
 });
 
 router.put('/:id', (req, res) => {
-  if (!mongodb.ObjectID.isValid(req.params.id)) {
-    return res.generateResponse(400, null, 'Bad Request - Invalid Id');
-  }
-
-  Author.findByIdAndUpdate(req.params.id, req.body, {upsert:true} ,function (err, doc) {
-    if (err) return res.generateResponse(500, null, err);
-    if (!doc) return res.generateResponse(204);
-    return res.generateResponse(200, null, doc);
+  put(Author, req.params.id, req.body).then((response) => {
+    return res.generateResponse(response.statusCode, null, response.message);
+  })
+  .catch((error) => {
+    return res.generateResponse(500, null, error);
   });
 });
 
