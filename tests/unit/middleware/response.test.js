@@ -13,7 +13,11 @@ describe('middleware response', () => {
     
     // simulate a route to test auth middleware
     router.get('/', generateResponse, function(req, res) {
-    res.generateResponse(statusCode, headers, message);
+        res.generateResponse(statusCode, headers, message);
+    });
+
+    router.get('/empty', generateResponse, function(req, res) {
+        res.generateResponse(statusCode);
     });
 
     app.use("/test", router);
@@ -24,6 +28,16 @@ describe('middleware response', () => {
             statusCode = 200;
             headers = null;
             message = "";
+        });
+
+        it('return statusCode with parameter by default', () => {
+            return request(app)
+                    .get('/test/empty')
+                    .set('Accept', 'application/json')
+                    .expect(200)
+                    .then(response => {
+                        expect(response.body).toMatchObject({});
+                    })
         });
 
         it('return between 200 and 399 status code', () => {
