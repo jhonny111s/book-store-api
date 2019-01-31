@@ -9,7 +9,7 @@ const { findAll, findById, save, remove, patch, put } = require('../utils/query'
 
 
 // Se aplica el middleware de authorización a todos los metodos
-//router.use(auth);
+router.use(auth);
 
 router.get('/', (req, res) => {
   findAll(Author)
