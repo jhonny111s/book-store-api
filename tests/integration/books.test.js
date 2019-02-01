@@ -1,5 +1,5 @@
 const request = require('supertest');
-const app = require('../../index');
+const {app}  = require('../../index');
 const  { Book } = require('../../models/jsonschemas/book');
 const { generateAuthToken } = require('../../utils/token');
 
@@ -7,10 +7,11 @@ const { generateAuthToken } = require('../../utils/token');
 describe('routes books', () => {
 
     describe('Books', () => {
-        let server = "";
         let id = "";
         let book = {};
         let token = "";
+
+        let server= null;
 
         beforeAll((done) => {
             generateAuthToken({ _id: 1, isAdmin: true, permissions: {}, accessName: null}).then((auth) => {
@@ -29,7 +30,8 @@ describe('routes books', () => {
                 "category": "Novel",
                 "stock": 2
             };
-            server = require('../../startup/db');
+
+            server = app.listen();    
             Book.create(book).then((response) => {
                 id = String(response._id);
                 done();
@@ -38,6 +40,7 @@ describe('routes books', () => {
 
         afterEach((done) => {
             Book.deleteMany({}).then((response) => {
+                server.close();
                 done(); 
             })
         });
