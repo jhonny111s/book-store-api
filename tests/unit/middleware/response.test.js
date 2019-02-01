@@ -1,26 +1,26 @@
 const request = require('supertest');
 const generateResponse = require('../../../middleware/response');
 const express = require('express');
+const { app }  = require('../../../index');
 
 
 describe('middleware response', () => {
-    const app = express();
-    const router = express.Router();
 
     let statusCode = 200;
     let headers = null;
     let message = "";
-    
-    // simulate a route to test auth middleware
+
+    const router = express.Router();
+    // simulate a route to test response middleware
     router.get('/', generateResponse, function(req, res) {
         res.generateResponse(statusCode, headers, message);
     });
-
     router.get('/empty', generateResponse, function(req, res) {
         res.generateResponse(statusCode);
     });
 
-    app.use("/test", router);
+    app.use("/testResponse", router);
+
 
     describe('RESPONSES', () => {
 
@@ -32,7 +32,7 @@ describe('middleware response', () => {
 
         it('return statusCode with parameter by default', () => {
             return request(app)
-                    .get('/test/empty')
+                    .get('/testResponse/empty')
                     .set('Accept', 'application/json')
                     .expect(200)
                     .then(response => {
@@ -43,7 +43,7 @@ describe('middleware response', () => {
         it('return between 200 and 399 status code', () => {
             message = { name: 'john' };
             return request(app)
-                    .get('/test')
+                    .get('/testResponse')
                     .set('Accept', 'application/json')
                     .expect(200)
                     .then(response => {
@@ -54,7 +54,7 @@ describe('middleware response', () => {
         it('return return headers', () => {
             headers = { 'x-auth-token': '123' };
             return request(app)
-                    .get('/test')
+                    .get('/testResponse')
                     .set('Accept', 'application/json')
                     .expect(200)
                     .then(response => {
@@ -66,7 +66,7 @@ describe('middleware response', () => {
             statusCode = 400;
             message = 'Bad Request - Invalid Id';
             return request(app)
-                    .get('/test')
+                    .get('/testResponse')
                     .set('Accept', 'application/json')
                     .expect(400)
                     .then(response => {
@@ -78,7 +78,7 @@ describe('middleware response', () => {
             statusCode = 500;
             message = null;
             return request(app)
-                    .get('/test')
+                    .get('/testResponse')
                     .set('Accept', 'application/json')
                     .expect(500)
                     .then(response => {

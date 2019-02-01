@@ -1,6 +1,7 @@
 const request = require('supertest');
 const validate = require('../../../middleware/validation');
 const express = require('express');
+const { app }  = require('../../../index');
 
 
 describe('middleware validation', () => {
@@ -26,18 +27,13 @@ describe('middleware validation', () => {
         "required": ["title", "authors"],
     };
 
-    const app = express();
     const router = express.Router();
-    
-    // simulate a route to test auth middleware
-    router.post('/', validate(schema), function(req, res) {
+    // simulate a route to test validation middleware
+    router.post('/',  validate(schema), function(req, res) {
         return res.send(req.body);
     });
 
-
-    app.use(express.json());
-    app.use(express.urlencoded({ extended: true }));
-    app.use("/test2", router);
+    app.use("/testValidation", router);
 
     describe('VALIDATION', () => {
         let data = {
@@ -47,7 +43,7 @@ describe('middleware validation', () => {
 
         it('correct data format', () => {
             return request(app)
-                    .post('/test2')
+                    .post('/testValidation')
                     .send(data)
                     .set('Accept', 'application/json')
                     .expect(200)
@@ -59,7 +55,7 @@ describe('middleware validation', () => {
         it('malformed data', () => {
             delete data.title;
             return request(app)
-                    .post('/test2')
+                    .post('/testValidation')
                     .send(data)
                     .set('Accept', 'application/json')
                     .expect(400)

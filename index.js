@@ -11,7 +11,12 @@ logger.info(`ENVIROMENT: ${process.env.NODE_ENV || 'default'}`);
 logger.info(`NAME_APP: ${config.get("appName")}`);
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => logger.info(`Listening on port ${port}...`));
+
+// no es necesario con supertest que existan una conexion y causa prolemas
+// de puerto en uso
+if (process.env.NODE_ENV !== 'test') {
+   app.listen(port, () => logger.info(`Listening on port ${port}...`));
+};
 
 
-module.exports = app;
+module.exports = { app };
