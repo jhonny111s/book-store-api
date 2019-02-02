@@ -55,7 +55,7 @@ router.post('/', validate(bookSchema), (req, res) => {
 });
 
 router.delete('/:id', (req, res) => {
-  remove(Book, req.params.id).then((response) => {
+  remove(Book, {_id: req.params.id}).then((response) => {
     return res.generateResponse(response.statusCode, null, response.message);
   })
   .catch((error) => {
@@ -67,7 +67,7 @@ router.delete('/:id', (req, res) => {
 // https://www.rfc-archive.org/getrfc?rfc=7396
 // https://www.rfc-archive.org/getrfc?rfc=6902
 router.patch('/:id', (req, res) => {
-  patch(Book, req.params.id, req.body).then((response) => {
+  patch(Book, {_id: req.params.id}, req.body).then((response) => {
     return res.generateResponse(response.statusCode, null, response.message);
   })
   .catch((error) => {
@@ -77,7 +77,7 @@ router.patch('/:id', (req, res) => {
 
 // Actualiza todo el recurso, si no existe se crea
 router.put('/:id', validate(bookSchema), (req, res) => {
-  put(Book, req.params.id, req.body).then((response) => {
+  put(Book, {_id: req.params.id}, req.body).then((response) => {
     return res.generateResponse(response.statusCode, null, response.message);
   })
   .catch((error) => {

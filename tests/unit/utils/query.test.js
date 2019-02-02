@@ -51,6 +51,32 @@ describe('utils query', () => {
 
     });
 
+    describe('FINDBYCONDITIONS', () => {
+
+        it('should return the doc', () => {
+            mockingoose.Authors.toReturn(_doc[0], 'findOne'); // findById is findOne
+
+            return expect(query.findByConditions(Author, { _id: _doc[0]._id })).resolves.toMatchObject({statusCode: 200});    
+          })
+
+          it('should return internal error', () => {
+            mockingoose.Authors.toReturn(new Error('My Error'), 'findOne'); // findById is findOne
+
+            return expect(query.findByConditions(Author, {_id: '507f191e810c19729de860ea' })).rejects.toThrowError();  
+          })
+
+          it('should return not found', () => {
+            mockingoose.Authors.toReturn(null, 'findOne'); // findById is findOne
+
+            return expect(query.findByConditions(Author, {_id: '507f191e810c19729de860e2'})).resolves.toMatchObject({statusCode: 404});
+          })
+
+          it('should return bad request', () => {
+            return expect(query.findByConditions(Author, {_id: 'string'})).resolves.toMatchObject({statusCode: 400});
+          })
+
+    });
+
     describe('FIND', () => {
 
         it('should return all docs', () => {            
@@ -112,23 +138,27 @@ describe('utils query', () => {
         it('should remove the doc', () => {
             mockingoose.Authors.toReturn(_doc[0], 'findOneAndRemove');
 
-            return expect(query.remove(Author, _doc[0]._id)).resolves.toMatchObject({statusCode: 200});    
+            return expect(query.remove(Author, {_id: _doc[0]._id})).resolves.toMatchObject({statusCode: 200});    
           })
         
         it('should return not found', () => {
             mockingoose.Authors.toReturn(null, 'findOneAndRemove');
 
-            return expect(query.remove(Author, '507f191e810c19729de860e2')).resolves.toMatchObject({statusCode: 404});
+            return expect(query.remove(Author, {_id: '507f191e810c19729de860e2'})).resolves.toMatchObject({statusCode: 404});
         })
 
-        it('should return bad request', () => {
-            return expect(query.remove(Author, 'string')).resolves.toMatchObject({statusCode: 400});
+        it('should return bad request with conditions', () => {
+            return expect(query.remove(Author, 'string')).resolves.toMatchObject({statusCode: 400, message: 'Bad Request'});
+        })
+
+        it('should return bad request with id', () => {
+            return expect(query.remove(Author, {_id: 'string'})).resolves.toMatchObject({statusCode: 400, message: 'Bad Request - Invalid Id'});
           })
 
         it('should return internal error', () => {
             mockingoose.Authors.toReturn(new Error('My Error'), 'findOneAndRemove'); 
 
-            return expect(query.remove(Author, _doc[0]._id)).rejects.toThrowError();
+            return expect(query.remove(Author, {_id: _doc[0]._id})).rejects.toThrowError();
         })
     })
 
@@ -137,23 +167,27 @@ describe('utils query', () => {
         it('should patch the doc', () => {
             mockingoose.Authors.toReturn(_doc[0], 'findOneAndUpdate');
 
-            return expect(query.patch(Author, _doc[0]._id, _doc[0])).resolves.toMatchObject({statusCode: 200});    
+            return expect(query.patch(Author, {_id: _doc[0]._id}, _doc[0])).resolves.toMatchObject({statusCode: 200});    
           })
         
         it('should return not found', () => {
             mockingoose.Authors.toReturn(null, 'findOneAndUpdate');
 
-            return expect(query.patch(Author, '507f191e810c19729de860e2', _doc[0])).resolves.toMatchObject({statusCode: 404});
+            return expect(query.patch(Author, {_id: '507f191e810c19729de860e2'}, _doc[0])).resolves.toMatchObject({statusCode: 404});
         })
 
-        it('should return bad request', () => {
-            return expect(query.patch(Author, 'string', _doc[0])).resolves.toMatchObject({statusCode: 400});
+        it('should return bad request with conditions', () => {
+            return expect(query.patch(Author, 'string', _doc[0])).resolves.toMatchObject({statusCode: 400, message: 'Bad Request'});
           })
+        
+        it('should return bad request with id', () => {
+        return expect(query.patch(Author, {_id: 'string'}, _doc[0])).resolves.toMatchObject({statusCode: 400, message: 'Bad Request - Invalid Id'});
+        })
 
         it('should return internal error', () => {
             mockingoose.Authors.toReturn(new Error('My Error'), 'findOneAndUpdate'); 
 
-            return expect(query.patch(Author, _doc[0]._id, _doc[0])).rejects.toThrowError();
+            return expect(query.patch(Author, {id: _doc[0]._id}, _doc[0])).rejects.toThrowError();
         })
     })
 
@@ -162,23 +196,27 @@ describe('utils query', () => {
         it('should update the doc', () => {
             mockingoose.Authors.toReturn(_doc[0], 'findOneAndUpdate');
 
-            return expect(query.put(Author, _doc[0]._id, _doc[0])).resolves.toMatchObject({statusCode: 200});    
+            return expect(query.put(Author, {_id: _doc[0]._id}, _doc[0])).resolves.toMatchObject({statusCode: 200});    
           })
         
         it('should create de doc', () => {
             mockingoose.Authors.toReturn(null, 'findOneAndUpdate');
 
-            return expect(query.put(Author, '507f191e810c19729de860e2', _doc[0])).resolves.toMatchObject({statusCode: 204});
+            return expect(query.put(Author, {_id: '507f191e810c19729de860e2'}, _doc[0])).resolves.toMatchObject({statusCode: 204});
         })
 
-        it('should return bad request', () => {
-            return expect(query.put(Author, 'string')).resolves.toMatchObject({statusCode: 400});
+        it('should return bad request with conditions', () => {
+            return expect(query.put(Author, 'string')).resolves.toMatchObject({statusCode: 400, message: 'Bad Request'});
+        })
+
+        it('should return bad request with id', () => {
+            return expect(query.put(Author, {_id: 'string'})).resolves.toMatchObject({statusCode: 400, message: 'Bad Request - Invalid Id'});
           })
 
         it('should return internal error', () => {
             mockingoose.Authors.toReturn(new Error('My Error'), 'findOneAndUpdate'); 
 
-            return expect(query.put(Author, _doc[0]._id, _doc[0])).rejects.toThrowError();
+            return expect(query.put(Author, {_id: _doc[0]._id}, _doc[0])).rejects.toThrowError();
         })
     })
 

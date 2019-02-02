@@ -40,7 +40,7 @@ router.post('/', validate(authorSchema), (req, res) => {
 });
 
 router.delete('/:id', (req, res) => {
-  remove(Author, req.params.id).then((response) => {
+  remove(Author, {_id: req.params.id}).then((response) => {
     return res.generateResponse(response.statusCode, null, response.message);
   })
   .catch((error) => {
@@ -49,7 +49,7 @@ router.delete('/:id', (req, res) => {
 });
 
 router.patch('/:id', (req, res) => {
-  patch(Author, req.params.id, req.body).then((response) => {
+  patch(Author, {_id: req.params.id}, req.body).then((response) => {
     return res.generateResponse(response.statusCode, null, response.message);
   })
   .catch((error) => {
@@ -58,7 +58,7 @@ router.patch('/:id', (req, res) => {
 });
 
 router.put('/:id', (req, res) => {
-  put(Author, req.params.id, req.body).then((response) => {
+  put(Author, {_id: req.params.id}, req.body).then((response) => {
     return res.generateResponse(response.statusCode, null, response.message);
   })
   .catch((error) => {
