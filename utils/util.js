@@ -41,7 +41,29 @@ function formatPermissions(access) {
     return update;
   }
 
+  function purchaseFormat(body) {
+    let cart = {
+      items: [],
+      total: 0,
+      size: 0,
+      count: 0,
+      state: 'INITIAL',
+      user: body.user? body.user: null
+    };
+
+    if (Array.isArray(body.items)) {
+      for (let item of body.items) {
+        cart.items = cart.items.concat(item);
+        cart.total += item.book.price * item.count;
+        cart.size += 1;
+        cart.count += item.count;
+      }
+    }
+    return cart;
+  }
+
   module.exports = {
     formatPermissions,
-    mergePatch
+    mergePatch,
+    purchaseFormat
   };

@@ -24,7 +24,6 @@ describe('middleware auth', () => {
         beforeAll((done) => {
             Promise.all([generateAuthToken(admin),generateAuthToken(guest),generateAuthToken(user)]).then((auth) => {
                 tokens = auth;
-                console.log(tokens);
                 done();
             });
         });
