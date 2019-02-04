@@ -10,46 +10,44 @@ const _ = require('lodash');
 const logger = require('../startup/logger');
 const { generateAuthToken, decodeAuthToken } = require('../utils/token');
 const { formatPermissions } = require('../utils/util');
+const encrypt = require('../utils/encrypt');
 
+const { findByConditions, save } = require('../utils/query');
 
 // Permite crear un usuario e inmediatamente generar el token de autenticación el la cabecera
-router.post('/', validate(userSchema), async(req, res) => {
-  User.findOne({email: req.body.email}, function (err, doc) {
-    if (err) return res.generateResponse(500, null, err);
-    if (doc) return res.generateResponse(200, null, 'user already registred. Please use login');
-      // Con bcrypt lo que hacemos es encriptar nuestra contraseña, como esto toma tiempo
-      // debemos aseguranos de que sea asincrono
-      bcrypt.genSalt(10).then((salt)=> {
-        bcrypt.hash(req.body.password, salt).then((hash) => {
-          req.body.password = hash;
-          
-          const user = new User(req.body);
-          user.save(function (err, doc) {
-            if (err) return res.generateResponse(500, null, err);
+router.post('/', validate(userSchema), (req, res) => {
+  findByConditions(User, {email: req.body.email})
+  .then((user) => {
+    // user exists then query return statusCode and message, save is 200 or error.
+    if (user.statusCode == 200) return res.generateResponse(user.statusCode, null, 'user already registred. Please use login');
 
-            getPermissions(doc.role).then((acl)=> {
-              const payload = { _id: doc.id, isAdmin: acl.isAdmin, permissions: acl.acl, accessName: acl.name};
-              generateAuthToken(payload)
-              .then((token) => {
-                return res.generateResponse(201, {'x-auth-token': token}, null);
-              })
-              .catch((err) => {
-                return res.generateResponse(500, null, err);
-              }); 
-            })
-            .catch((err) => {
-              return res.generateResponse(500, null, err);
-            });
-          });
+    let doc = {};
+    encrypt.generate(req.body.password)
+      .then((hash) => {
+        req.body.password = hash;
+        // save user with hash password
+        return save(User, req.body);
         })
-        .catch((err) => {
-          return res.generateResponse(500, null, err);
-        });
+      .then((created) => {
+        doc = created.message;
+        // get permissions from user created
+        return getPermissions(doc.role);
       })
-      .catch((err) => {
-        return res.generateResponse(500, null, err);
-      });
-    });
+      .then((acl) => {
+        const payload = { _id: doc.id, isAdmin: acl.isAdmin, permissions: acl.acl, accessName: acl.name};
+        // generate token with user and acl
+        return generateAuthToken(payload);
+      })
+      .then((token) => {
+        return res.generateResponse(201, {'x-auth-token': token}, null);
+      })
+      .catch((error) => {
+        return res.generateResponse(500, null, error);
+      })
+  })
+  .catch((error) => {
+    return res.generateResponse(500, null, error);
+  })
 });
 
 /* 
@@ -65,7 +63,6 @@ router.post('/login', async(req, res) => {
   User.findOne({email: req.body.email}, function (err, doc) {
     if (err) return res.generateResponse(500, null, err);
     if (!doc) return res.generateResponse(400, null, 'Bad Request - Invalid email or password');
-    
     bcrypt.compare(req.body.password, doc.password)
     .then((valid)=>{
       if (!valid) {
@@ -99,13 +96,18 @@ router.post('/me', async(req, res) => {
   if (!token) return res.generateResponse(401, null, 'Unauthorized - No token provided.');
 
   decodeAuthToken(token)
-  .then((decoded)=> {
-    User.findOne({_id: decoded._id}, function (err, doc) {
-      if (err) return res.generateResponse(500, null, err);
-      if (!doc) return res.generateResponse(404, null, 'Not Found');
-      res.status(200).send(_.pick(doc, ["id", "email"]));
-    });
-  })
+  .then((decoded) => { 
+    // find user by id
+    return findByConditions(User, {_id: decoded._id})
+      .then((doc) => {
+        // check error in find or send response
+        if (doc.statusCode !== 200) return res.generateResponse(doc.statusCode, null, 'Not Found');
+        return res.status(200).send(_.pick(doc.message, ["id", "email"]));
+      })
+      .catch((err) => {
+        return res.generateResponse(500, null, err);
+      })
+    })
   .catch((err) => {
     return res.generateResponse(401, null, `Unauthorized - ${err.name}.`);
   });
