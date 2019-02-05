@@ -81,4 +81,7 @@
 
 ## test-2
 
-- Se refactorizó todo el codigo que se replicaba para hacer las consultas y así testear más facil
+- Se refactorizó todo el codigo que se replicaba para hacer las consultas y así testear más facil.
+- Se instalo el paquete cross-env para cambiar el NODE_ENV a test cuando corramos los test y sirva en todos los sistemas operativos.
+- Se utilizó el paquete supertest para hacer los test de integración y para eso tuvimos que agregar una condicion cuando se llama la conexión ya que no es necesario usarla y causa conflictos.
+- En package agregamos a los scripts test y tes-coverage para correr mas facil desde nuestra consola "npm run test"
