@@ -42,6 +42,7 @@ function formatPermissions(access) {
   }
 
   function purchaseFormat(body) {
+    if (typeof(body) !== 'object') return null;
     let cart = {
       items: [],
       total: 0,

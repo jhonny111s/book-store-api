@@ -1,4 +1,4 @@
-const {formatPermissions, mergePatch} = require('../../../utils/util');
+const {formatPermissions, mergePatch, purchaseFormat} = require('../../../utils/util');
 
 describe('utils utils', () => {
     describe('formatPermissions', () => {
@@ -93,6 +93,51 @@ describe('utils utils', () => {
             expect(mergePatch("string")).toBe("string")
         });
 
+
+    });
+
+    describe('purchaseFormat', () => {
+        let purchase = {};
+        beforeEach(() => {
+            purchase = {
+                "user": "2",
+                "items": [{
+                    "count": 2,
+                    "book": {
+                        "title": "Cien años de soledad",
+                        "authors": ["Gabriel Garcia Marquez"],
+                        "description": "El libro narra la historia de la familia Buendía a lo largo de siete generaciones en el pueblo ficticio de Macondo",
+                        "price": 60000,
+                        "code": "0004",
+                        "category": "Novel",
+                        "stock": 3
+                    }
+                },
+                {
+                    "count": 2,
+                    "book": {
+                        "title": "Ana karenina",
+                        "authors": ["Leon Toistoi"],
+                        "description": "example",
+                        "price": 80000,
+                        "code": "0002",
+                        "category": "Novel",
+                        "stock": 3
+                    }
+                }]
+            }
+        });
+        it('should return null if body is not object', () => {
+            expect(purchaseFormat("string")).toBeNull();
+        });
+
+        it('should return empty cart if body ilegal', () => {
+            expect(purchaseFormat({})).toMatchObject({items: []});
+        });
+
+        it('should return valid cart', () => {
+            expect(purchaseFormat(purchase)).toMatchObject({count: 4, total: 280000});
+        });
 
     });
 

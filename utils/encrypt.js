@@ -1,9 +1,9 @@
 const bcrypt = require('bcrypt');
 
 
-function generate(string) {
+function generate(string, salt=10) {
     return new Promise((resolve, reject) => {
-        bcrypt.genSalt(10).then((salt)=> {
+        bcrypt.genSalt(salt).then((salt)=> {
             bcrypt.hash(string, salt).then((hash) => {
             return resolve(hash);
             })
@@ -27,9 +27,7 @@ function generate(string) {
                 return reject(err);
             });
         })
-        .catch((err) => {
-            return reject(err);
-        });
+        
   }
 
 
