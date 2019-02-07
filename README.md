@@ -1,6 +1,6 @@
 # README
 
-### Inicio
+### initial
 
 - Se comenzó por definir la estructura de nuestro proyecto, con las carpetas y archivos iniciales.
 - En el index.js solo se van hacer llamados a archivos externos para así mantener legible y desacoplado el código, además de iniciar el servidor en el puerto indicado.
