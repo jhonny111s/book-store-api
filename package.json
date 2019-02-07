@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node index.js",
     "test": "cross-env NODE_ENV=test jest --verbose",
-    "test-coverage": "cross-env NODE_ENV=test jest --coverage --collectCoverageFrom={routes,utils,models,middleware}/**/*.{js,jsx}"
+    "test-coverage": "cross-env NODE_ENV=test jest --coverage --collectCoverageFrom={routes,utils,models,middleware}/**/*.{js,jsx}",
+    "linter": "eslint"
   },
   "keywords": [
     "api"
@@ -19,6 +20,7 @@
     "body-parser": "^1.18.3",
     "config": "^3.0.1",
     "cross-env": "^5.2.0",
+    "dotenv": "^6.2.0",
     "express": "^4.16.4",
     "jsonwebtoken": "^8.4.0",
     "lodash": "^4.17.11",
@@ -28,6 +30,7 @@
     "winston": "^3.1.0"
   },
   "devDependencies": {
+    "eslint": "^5.13.0",
     "jest": "^23.6.0",
     "mockingoose": "^2.12.0",
     "superagent": "^4.1.0",
