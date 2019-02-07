@@ -53,7 +53,7 @@
 
 ## accessControl
 
-- Al crear un usuario se le asigana automaticamente un rol el cual se le asigno el numero 2 para designar que tiene permisos de invitado, el rol tambien muestra si es administrador o no.
-- Se creo el modelo y ruta de los roles donde este tiene un nombre, codigo y los codigos de los accesos que tiene en la aplicación.
-- Se creo el modelo y rutas de access en el cual estan los permisos a los metodos (Acces Control List), aqui si queremos permitir obtener los datos de los libros debemos agregar {permissions: {"/api/books": ["GET"]}}.
-- Al registrarnos o al loguearnos en user se obtienen los permisos y se procesan para darles el formato necesario para enviarlos en el token y el middleware auth pueda authorizar.
+- Al crear un usuario se le asigna automáticamente un rol el cual se le asigno el numero 2 para designar que tiene permisos de invitado, el rol también muestra si es administrador o no.
+- Se creo el modelo y ruta de los roles donde este tiene un nombre, código y los códigos de los accesos que tiene en la aplicación.
+- Se creo el modelo y rutas de access en el cual estan los permisos a los metodos (Acces Control List), aquí si queremos permitir obtener los datos de los libros debemos agregar {permissions: {"/api/books": ["GET"]}}.
+- Al registrarnos o al loguearnos en user se obtienen los permisos y se procesan para darles el formato necesario para enviarlos en el token y el middleware auth pueda autorizar.
