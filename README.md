@@ -1,5 +1,9 @@
 # README
 
+Cada titulo simboliza el orden de cada uno de los branch en que se trabajo, intentando siempre adquirir el conocimiento de manera incremental.
+
+----------------
+
 ### initial
 
 - Se comenzó por definir la estructura de nuestro proyecto, con las carpetas y archivos iniciales.
