@@ -86,3 +86,10 @@
 - Se instalo el paquete cross-env para cambiar el NODE_ENV a test cuando corramos los test y sirva en todos los sistemas operativos.
 - Se utilizó el paquete supertest para hacer los test de integración y para eso tuvimos que agregar una condición cuando se llama la conexión ya que no es necesario usarla y causa conflictos.
 - En package agregamos a los scripts test y tes-coverage para correr mas fácil desde nuestra consola "npm run test"
+
+## tools
+
+- Se agrego el paquete dotenv para poder usar un archivo .env y no tener que preocuparse por hacer un export "export DB_NAME=test" por cada variable de ambiente.
+- Se agrego eslint para que nos indique nuestros errores de codificación y con el archivo .eslintrc.js creamos la configuración, si usamos un IDE automaticamnete nos va a mostrar los errores.
+- Se agrego al git ignore el .env ya que este archivo es una utilidad pero no debe estar publico.
+- No se ha hecho ninguna limpeza segun las recomendaciones de eslint.
